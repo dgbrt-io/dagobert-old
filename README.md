@@ -20,14 +20,14 @@
 								  
 About Dagobert			  
 =========================
-Dagobert is a algorithmic trading engine for the J2EE platform. It comes with no decision-making algorithms, because I don't want to publish mine, as you might see. 
-It currently it is implemented only for BTC and the MtGox API V2 (https://en.bitcoin.it/wiki/MtGox/API/HTTP/v2), but there are also others planned.
+Dagobert is a algorithmic trading engine for the J2EE platform. It comes without decision-making algorithms, because I don't want to publish mine, as you might see. 
+It is currently only implemented for BTC and the MtGox API V2 (https://en.bitcoin.it/wiki/MtGox/API/HTTP/v2), but there are also others planned.
 
-This project is planned as an evolutionary long-termin project.
+This project should be an evolutionary long-termin project.
 
 Why "Dagobert"?
 =========================
-Dagobert Duck is the german name (as I am a German) of Walt Disney's Scrooge McDuck. I'm not a comic reader, but I did not find any better name. Don't get me wrong, it's the best name.
+Dagobert Duck is the german name (as I am a German) of Walt Disney's Scrooge McDuck. I'm not a comic reader, but I did not find any better name. Don't get me wrong, it's the best name imho :)
 
 Features
 =========================
