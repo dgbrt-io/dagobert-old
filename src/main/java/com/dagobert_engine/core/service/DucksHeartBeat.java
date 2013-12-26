@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import com.dagobert_engine.config.service.ConfigService;
 import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.statistics.service.StatisticsService;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
 
@@ -87,10 +88,13 @@ public class DucksHeartBeat extends Thread {
 			}
 			
 			try {
+				
+				// Refresh period data
 				logger.log(Level.INFO, "-------- Refreshing rates and periods --------");
 				ratesService.refreshPeriods();
 				logger.log(Level.INFO, "-------------------- DONE --------------------");
 	
+				// Refresh trade data
 				logger.log(Level.INFO, "------------------- Trading ------------------");
 				traderService.trade();
 				logger.log(Level.INFO, "-------------------- DONE --------------------");
@@ -98,9 +102,13 @@ public class DucksHeartBeat extends Thread {
 				
 	//			trans.commit();
 			}
-			catch (Exception exc) {
+			catch (MtGoxConnectionError exc) {
 	//			trans.rollback();
 				logger.log(Level.SEVERE, exc.getMessage());
+			}
+			catch (Exception exc) {
+	//			trans.rollback();
+				exc.printStackTrace();
 			}
 		}
 	}

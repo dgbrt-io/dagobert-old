@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -31,6 +32,8 @@ import com.dagobert_engine.config.util.KeyName;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.util.ApiKeys;
+import com.dagobert_engine.core.util.ApiKeysNotSetException;
+import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
@@ -177,6 +180,7 @@ public class MtGoxApiAdapter implements Serializable {
 		return lag;
 	}
 
+	
 
 	/**
 	 * Builds a query string
@@ -259,16 +263,14 @@ public class MtGoxApiAdapter implements Serializable {
 	 */
 	public String query(String path, HashMap<String, String> args) {
 		if (keys == null) {
-			throw new MtGoxException("Api keys are not set. Please set them up in <classpath>/bitcoin/core/settings.properties");
+			throw new ApiKeysNotSetException("Api keys are not set. Please set them up in <classpath>/bitcoin/core/settings.properties");
 		}
 
 		// Create nonce
-		String nonce = String.valueOf(System.currentTimeMillis()) + "000";
+		final String nonce = String.valueOf(System.currentTimeMillis()) + "000";
 		
-		// No http error yet
-		boolean httpError = false;
 		HttpsURLConnection connection = null;
-		String answer = "";
+		String answer = null;
 		try {
 			// add nonce and build arg list
 			args.put(ARG_KEY_NONCE, nonce);
@@ -305,37 +307,52 @@ public class MtGoxApiAdapter implements Serializable {
 			BufferedReader br = null;
 			
 			// Any error?
-			if (connection.getResponseCode() >= 400) {
-				httpError = true; 
-				
+			int code = connection.getResponseCode();
+			logger.log(Level.INFO, "HTTP answer: " + code);
+			if (code >= 400) {
 				// get error stream
 				br = new BufferedReader(new InputStreamReader(
 						(connection.getErrorStream())));
 				
-			} else
+				answer = toString(br);
+				
+				throw new MtGoxConnectionError(code, answer);
+				
+			} else {
 				// get normal stream
 				br = new BufferedReader(new InputStreamReader(
 						(connection.getInputStream())));
-
-			String output;
-
-			if (httpError)
-				logger.log(Level.SEVERE, "HTTP ERROR: " + connection.getResponseCode() + ", Post Data: "
-						+ post_data);
-			
-			while ((output = br.readLine()) != null) {
-				answer += output;
+				answer = toString(br);
+				
 			}
+
+			
+			
+		}
+		catch (UnknownHostException exc) {
+			throw new MtGoxConnectionError("Could not connect to MtGox. Please check your internet connection. (" + exc.getClass().getName() + ")");
 		}
 		catch (IllegalStateException ex) {
-			logger.log(Level.SEVERE, ex.getMessage());
+			throw new MtGoxConnectionError(ex);
 		} catch (IOException ex) {
-			logger.log(Level.SEVERE, ex.getMessage());
+			throw new MtGoxConnectionError(ex);
 		} finally {
 			
 			if (connection != null)
 				connection.disconnect();
 			connection = null;
+		}
+		
+		return answer;
+	}
+	
+	private String toString(BufferedReader br) throws IOException {
+
+		
+		String answer = "";
+		String line = "";
+		while ((line = br.readLine()) != null) {
+			answer += line;
 		}
 		
 		return answer;
