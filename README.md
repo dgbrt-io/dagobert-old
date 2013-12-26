@@ -6,6 +6,16 @@
 								  
 								  	      License: Apache 2.0
                              http://www.apache.org/licenses/LICENSE-2.0.html
+                             
+                             
+                               - - - - - - - - - - - - - - - - - - - - - - 
+                             	   
+                             	    ! ! ! ! ! W A R N I N G ! ! ! ! !
+                             	    Dagobert is STILL under Development. 
+                             	  Features might not have been tested yet.
+                             	          Usage at your OWN risk.
+                             	          
+                               - - - - - - - - - - - - - - - - - - - - - - 
 								  
 								  
 About Dagobert			  
