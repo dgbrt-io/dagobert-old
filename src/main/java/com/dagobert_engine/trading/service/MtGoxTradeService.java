@@ -32,7 +32,6 @@ import com.dagobert_engine.statistics.service.StatisticsService;
 import com.dagobert_engine.trading.model.Order;
 import com.dagobert_engine.trading.model.Order.OrderType;
 import com.dagobert_engine.trading.model.Order.StatusType;
-import com.google.gson.JsonObject;
 
 /**
  * Trade service

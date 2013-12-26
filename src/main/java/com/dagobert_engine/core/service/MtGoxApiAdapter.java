@@ -33,7 +33,6 @@ import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.util.ApiKeys;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
-import com.dagobert_engine.trading.model.Order;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
 import com.dagobert_engine.trading.service.util.Constants;
 
