@@ -1,6 +1,5 @@
-package com.dagobert_engine.portfolio.model;
+package com.dagobert_engine.core.model;
 
-import com.dagobert_engine.trading.model.CurrencyType;
 
 /**
  * Currency data.
@@ -11,7 +10,7 @@ import com.dagobert_engine.trading.model.CurrencyType;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
-public class Currency {
+public class CurrencyData {
 	
 	private double value;
 	private CurrencyType type;
@@ -27,12 +26,12 @@ public class Currency {
 	public void setType(CurrencyType type) {
 		this.type = type;
 	}
-	public Currency(double value, CurrencyType type) {
+	public CurrencyData(double value, CurrencyType type) {
 		super();
 		this.value = value;
 		this.type = type;
 	}
 
-	public Currency() {}
+	public CurrencyData() {}
 	
 }

@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-import com.dagobert_engine.trading.model.CurrencyType;
+import com.dagobert_engine.core.model.CurrencyType;
 
 /**
  * BTC Rate

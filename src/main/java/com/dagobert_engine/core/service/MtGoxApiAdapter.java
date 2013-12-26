@@ -28,9 +28,12 @@ import org.json.simple.parser.ParseException;
 
 import com.dagobert_engine.config.service.ConfigService;
 import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.model.CurrencyData;
+import com.dagobert_engine.core.model.CurrencyType;
+import com.dagobert_engine.core.util.ApiKeys;
 import com.dagobert_engine.core.util.MtGoxException;
-import com.dagobert_engine.trading.model.ApiKeys;
-import com.dagobert_engine.trading.model.CurrencyType;
+import com.dagobert_engine.core.util.MtGoxQueryUtil;
+import com.dagobert_engine.trading.model.Order;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
 import com.dagobert_engine.trading.service.util.Constants;
 
@@ -61,6 +64,7 @@ public class MtGoxApiAdapter implements Serializable {
 
 	// Path variables
 	private final String API_LAG = "MONEY/ORDER/LAG";
+	private final String API_ID_KEY = "MONEY/IDKEY";
 	
 	/**
 	 * Logger
@@ -118,6 +122,35 @@ public class MtGoxApiAdapter implements Serializable {
 		divisionFactors.put(CurrencyType.THB, 100000);
 	}
 
+	/**
+	 * Get ID key
+	 */
+	public String getIdKey() {
+		CurrencyType curr = CurrencyType.valueOf(configService.getProperty(KeyName.DEFAULT_CURRENCY));
+		
+		String resultJson = query(MtGoxQueryUtil.create(curr, API_ID_KEY));
+		
+		JSONParser parser = new JSONParser();
+		
+		try {
+			JSONObject root = (JSONObject) (parser.parse(resultJson));
+			String result = (String) root.get("result");
+			
+			if (!"success".equals(result)) {
+				throw new MtGoxException(result);
+			}
+			
+			String data = (String) root.get("data");
+			return data;
+		} catch (ParseException ex) {
+			logger.log(Level.SEVERE, ex.toString());
+			return null;
+		}
+		
+		
+	}
+	
+	
 	/**
 	 * Get lag of connection
 	 * @return
@@ -199,6 +232,24 @@ public class MtGoxApiAdapter implements Serializable {
 	 */
 	public String query(String url) {
 		return query(url, new HashMap<String, String>());
+	}
+	
+
+	
+	/**
+	 * Transforms a json object to a json object
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public CurrencyData getCurrencyForJsonObj(JSONObject obj) {
+
+		CurrencyData curr = new CurrencyData();
+		curr.setType(CurrencyType.valueOf((String) obj.get("currency")));
+		double value = 
+				Double.parseDouble((String) obj.get("value_int")) / getDivisionFactors().get(curr.getType());
+		curr.setValue(value);
+		return curr;
 	}
 	
 	/**

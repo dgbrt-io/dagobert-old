@@ -1,4 +1,4 @@
-package com.dagobert_engine.trading.model;
+package com.dagobert_engine.core.model;
 
 /**
  * CurrencyType

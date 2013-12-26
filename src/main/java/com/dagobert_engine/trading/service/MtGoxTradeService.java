@@ -20,16 +20,19 @@ import org.json.simple.parser.ParseException;
 
 import com.dagobert_engine.config.service.ConfigService;
 import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.model.CurrencyData;
+import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
 import com.dagobert_engine.core.util.MtGoxException;
-import com.dagobert_engine.portfolio.model.Currency;
+import com.dagobert_engine.core.util.MtGoxQueryUtil;
+import com.dagobert_engine.core.util.QueryArgBuilder;
 import com.dagobert_engine.portfolio.service.MtGoxPortfolioService;
 import com.dagobert_engine.statistics.model.Period;
 import com.dagobert_engine.statistics.service.StatisticsService;
-import com.dagobert_engine.trading.model.CurrencyType;
 import com.dagobert_engine.trading.model.Order;
 import com.dagobert_engine.trading.model.Order.OrderType;
 import com.dagobert_engine.trading.model.Order.StatusType;
+import com.google.gson.JsonObject;
 
 /**
  * Trade service
@@ -68,6 +71,7 @@ public class MtGoxTradeService implements Serializable {
 
 	// Paths
 	private final String API_ADD_ORDER = "MONEY/ORDER/ADD";
+	private final String API_CANCEL_ORDER = "MONEY/ORDER/CANCEL";
 	private final String API_MONEY_ORDERS = "MONEY/ORDERS";
 
 	@Inject
@@ -92,10 +96,12 @@ public class MtGoxTradeService implements Serializable {
 	private void postConstruct() throws Exception {
 	}
 
+	public static final String API_MONEY_ORDER_QUOTE = "MONEY/ORDER/QUOTE";
 	public static final String PARAM_TYPE = "type";
 	public static final String PARAM_AMOUNT_INT = "amount_int";
 	public static final String PARAM_PRICE_INT = "price_int";
 	
+	private JSONParser parser = new JSONParser();
 	
 	private List<Order> openOrders = new ArrayList<>();
 	private Order lastOrder = null;
@@ -111,12 +117,12 @@ public class MtGoxTradeService implements Serializable {
 	 * @param obj
 	 * @return
 	 */
-	private Currency getCurrencyForJsonObj(JSONObject obj) {
+	private CurrencyData getCurrencyForJsonObj(JSONObject obj) {
 		if (obj == null) {
 			return null;
 		}
 
-		Currency curr = new Currency();
+		CurrencyData curr = new CurrencyData();
 		curr.setType(CurrencyType.valueOf((String) obj.get("currency")));
 		double value = 
 				Double.parseDouble((String) obj.get("value_int")) / adapter.getDivisionFactors().get(curr.getType());
@@ -124,20 +130,87 @@ public class MtGoxTradeService implements Serializable {
 		return curr;
 	}
 	
+	/**
+	 * Cancel a trade order
+	 * 
+	 * @param order
+	 * @return
+	 */
+	public boolean cancelOrder(Order order) {
+		
+		String url = MtGoxQueryUtil.create(order.getCurrency(), API_CANCEL_ORDER);
+		
+		String resultJson = adapter.query(url, QueryArgBuilder.create().add("oid", order.getOrderId()).build());
+		
+		JSONObject root;
+		try {
+			root = (JSONObject) parser.parse(resultJson);
+			String result = (String) root.get("result");
+			
+			if (!"success".equals(result)) {
+				throw new MtGoxException(result);
+			}
+			
+			return true;
+		} catch (ParseException e) {
+			throw new MtGoxException(e);
+		}
+	}
+	
+	// TODO MONEY/ORDER/RESULT
+	// TODO MONEY/TRADES/FETCH (only get http method !!!!!)
+	// TODO MONEY/TRADES/CANCELLED (is not implemented by mtgox
+	
+	
+	
+	/**
+	 * Get an up-to-date quote for a bid or ask transaction
+	 * 
+	 * @param curr
+	 * @param type
+	 * @param amount
+	 * @return
+	 */
+	public double getQuote(CurrencyType curr, Order.OrderType type, double amount) {
+		
+		String url = MtGoxQueryUtil.create(curr, API_MONEY_ORDER_QUOTE);
+		
+		
+		String resultJSON = adapter.query(url, QueryArgBuilder.create().add("type", type.name().toLowerCase()).add("amount", "" + (int) amount * adapter.getDivisionFactors().get(curr)).build());
+		
+		try {
+			JSONObject root = (JSONObject) parser.parse(resultJSON);
+			
+			String result = (String) root.get("result");
+			
+			if (!"success".equals(result)) {
+				throw new MtGoxException(result);
+			}
+			
+			JSONObject data = (JSONObject) root.get("data");
+			String amountStr = (String) data.get("amount");
+			
+			return Double.parseDouble(amountStr) / adapter.getDivisionFactors().get(curr);			
+		} catch (ParseException e) {
+			throw new MtGoxException(e);
+		}
+	}
+	
 	public List<Order> getOpenOrders() {
 		logger.log(Level.INFO, "Getting open orders...");
 		
 		ArrayList<Order> orders = new ArrayList<Order>();
 		
+		CurrencyType currency = CurrencyType.valueOf(configService.getProperty(KeyName.DEFAULT_CURRENCY));
+		
 		try {
-			String resultJson = adapter.query(API_MONEY_ORDERS);
+			String resultJson = adapter.query(MtGoxQueryUtil.create(currency, API_MONEY_ORDERS));
 			
-			JSONParser parser = new JSONParser();
 			JSONObject root = (JSONObject) parser.parse(resultJson);
 			String result = (String) root.get("result");
 			
 			if (!"success".equals(result)) {
-				logger.log(Level.WARNING, "Could not get orders: " + result);
+				throw new MtGoxException(result);
 			}
 			
 			JSONArray data = (JSONArray) root.get("data");
@@ -252,9 +325,9 @@ public class MtGoxTradeService implements Serializable {
 	 */
 	private Order createInitialBTCBuy(double balanceBTC) {
 		Order buyOrder = new Order();
-		buyOrder.setOrderId("INITIAL-BUY-" + new Date().getTime());
-		buyOrder.setAmount(new Currency(balanceBTC, CurrencyType.USD));
-		buyOrder.setPrice(new Currency(statsService.getLastPeriod().getLatestRate()
+		buyOrder.setOrderId("DAGOBERT-INITIAL-BUY-" + new Date().getTime());
+		buyOrder.setAmount(new CurrencyData(balanceBTC, CurrencyType.USD));
+		buyOrder.setPrice(new CurrencyData(statsService.getLastPeriod().getLatestRate()
 				.getValue(), CurrencyType.USD));
 		buyOrder.setCurrency(CurrencyType.USD);
 		buyOrder.setDate(new Date());
@@ -272,9 +345,9 @@ public class MtGoxTradeService implements Serializable {
 	private Order createInitialBTCSell(double balanceBTC) {
 
 		Order sellOrder = new Order();
-		sellOrder.setOrderId("INITIAL-SELL-" + new Date().getTime());
-		sellOrder.setAmount(new Currency(balanceBTC, CurrencyType.USD));
-		sellOrder.setPrice(new Currency(statsService.getLastPeriod().getLatestRate()
+		sellOrder.setOrderId("DAGOBERT-INITIAL-SELL-" + new Date().getTime());
+		sellOrder.setAmount(new CurrencyData(balanceBTC, CurrencyType.USD));
+		sellOrder.setPrice(new CurrencyData(statsService.getLastPeriod().getLatestRate()
 				.getValue(), CurrencyType.USD));
 		sellOrder.setCurrency(CurrencyType.USD);
 		sellOrder.setDate(new Date());
@@ -325,7 +398,7 @@ public class MtGoxTradeService implements Serializable {
 
 		String result = "";
 		String orderId = "";
-		String urlPath = "BTC" + orderGiven.getCurrency().name() + "/" + API_ADD_ORDER;
+		String urlPath = MtGoxQueryUtil.create(orderGiven.getCurrency(), API_ADD_ORDER);
 		HashMap<String, String> query_args = new HashMap<>();
 		/*
 		 * Params type : {ask (sell) | bid(buy) } amount_int : amount of BTC to
@@ -363,14 +436,15 @@ public class MtGoxTradeService implements Serializable {
 		}
 
 		// Save to db
-		if (result.equals("success")) {
+		if (!result.equals("success")) {
+
+			throw new MtGoxException(result);
+			
+		} else {
 			logger.log(Level.INFO, "Sucessfully placed order with id " + orderId);
 			orderGiven.setOrderId(orderId);
 			
 			// TODO: re-read
-			
-		} else {
-			logger.log(Level.SEVERE, queryResult);
 		}
 
 		return orderGiven;

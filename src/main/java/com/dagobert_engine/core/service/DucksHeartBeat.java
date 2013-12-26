@@ -88,7 +88,7 @@ public class DucksHeartBeat extends Thread {
 			
 			try {
 				logger.log(Level.INFO, "-------- Refreshing rates and periods --------");
-				ratesService.refreshRates();
+				ratesService.refreshPeriods();
 				logger.log(Level.INFO, "-------------------- DONE --------------------");
 	
 				logger.log(Level.INFO, "------------------- Trading ------------------");

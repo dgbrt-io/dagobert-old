@@ -5,7 +5,8 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.dagobert_engine.portfolio.model.Currency;
+import com.dagobert_engine.core.model.CurrencyData;
+import com.dagobert_engine.core.model.CurrencyType;
 
 
 /**
@@ -53,10 +54,10 @@ public class Order {
 	private CurrencyType currency;
 	private CurrencyType item;
 	private OrderType type;
-	private Currency amount;
-	private Currency effectiveAmount;
-	private Currency invalidAmount;
-	private Currency price;
+	private CurrencyData amount;
+	private CurrencyData effectiveAmount;
+	private CurrencyData invalidAmount;
+	private CurrencyData price;
 	private StatusType status;
 	private Long priority;
 	public String getOrderId() {
@@ -77,28 +78,28 @@ public class Order {
 	public void setItem(CurrencyType item) {
 		this.item = item;
 	}
-	public Currency getAmount() {
+	public CurrencyData getAmount() {
 		return amount;
 	}
-	public void setAmount(Currency amount) {
+	public void setAmount(CurrencyData amount) {
 		this.amount = amount;
 	}
-	public Currency getEffectiveAmount() {
+	public CurrencyData getEffectiveAmount() {
 		return effectiveAmount;
 	}
-	public void setEffectiveAmount(Currency effectiveAmount) {
+	public void setEffectiveAmount(CurrencyData effectiveAmount) {
 		this.effectiveAmount = effectiveAmount;
 	}
-	public Currency getInvalidAmount() {
+	public CurrencyData getInvalidAmount() {
 		return invalidAmount;
 	}
-	public void setInvalidAmount(Currency invalidAmount) {
+	public void setInvalidAmount(CurrencyData invalidAmount) {
 		this.invalidAmount = invalidAmount;
 	}
-	public Currency getPrice() {
+	public CurrencyData getPrice() {
 		return price;
 	}
-	public void setPrice(Currency price) {
+	public void setPrice(CurrencyData price) {
 		this.price = price;
 	}
 	public StatusType getStatus() {
@@ -131,8 +132,8 @@ public class Order {
 		
 	}
 	public Order(String orderId, Date date, CurrencyType currency,
-			CurrencyType item, OrderType type, Currency amount,
-			Currency effectiveAmount, Currency invalidAmount, Currency price,
+			CurrencyType item, OrderType type, CurrencyData amount,
+			CurrencyData effectiveAmount, CurrencyData invalidAmount, CurrencyData price,
 			StatusType status, Long priority) {
 		super();
 		this.orderId = orderId;

@@ -1,13 +1,10 @@
 package com.dagobert_engine.statistics.service;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -20,11 +17,15 @@ import org.json.simple.parser.JSONParser;
 
 import com.dagobert_engine.config.service.ConfigService;
 import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.model.AdvancedCurrencyStatistics;
+import com.dagobert_engine.core.model.CurrencyData;
+import com.dagobert_engine.core.model.CurrencyStatistics;
+import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
+import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.statistics.model.BTCRate;
 import com.dagobert_engine.statistics.model.Period;
 import com.dagobert_engine.statistics.model.Period.PropabilityType;
-import com.dagobert_engine.trading.model.CurrencyType;
 
 /**
  * StatisticsService
@@ -54,25 +55,121 @@ public class StatisticsService implements Serializable {
 	@Inject
 	private MtGoxApiAdapter adapter;
 
-	@Inject
-	private Logger logger;
+	//@Inject
+	//private Logger logger;
+	
 
+	private JSONParser parser = new JSONParser();
+
+	/**
+	 * Current period
+	 */
 	private Period currentPeriod = null;
+	
+	/**
+	 * Last period
+	 */
 	private Period lastPeriod = null;
 
 	private final Object lock = new Object();
+	
 
-	/**
-	 * 
-	 * returns the string used to get the Ticker
-	 * 
-	 * @return the string you're searching for;)
-	 */
 	private static final String getTickerPath(CurrencyType cur, boolean fast) {
-		return "BTC" + cur.toString() + "/MONEY/TICKER" + (fast ? "_FAST" : "");
+		return CurrencyType.BTC.name() + cur.name() + "/MONEY/TICKER" + (fast ? "_FAST" : "");
 	}
+	
 
-	private BigDecimal getLastPrice(CurrencyType cur) throws ParseException {
+	// TODO MONEY/DEPTH/FETCH
+	// TODO MONEY/DEPTH/FULL
+	
+	/**
+	 * Get advanced statistics with the normal ticker
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public AdvancedCurrencyStatistics getAdvancedStatistics(CurrencyType type) {
+		
+		String url = getTickerPath(type, true);
+		String queryJson = adapter.query(url);
+		
+		try {
+			JSONObject root = (JSONObject) parser.parse(queryJson);
+			String result = (String) root.get("result");
+			
+			
+			if (!"success".equals(result)) {
+				throw new MtGoxException(result);
+			}
+			
+			JSONObject data = (JSONObject) root.get("data");
+			
+			AdvancedCurrencyStatistics stats = new AdvancedCurrencyStatistics();
+			stats.setHigh(adapter.getCurrencyForJsonObj((JSONObject) data.get("high")));
+			stats.setLow(adapter.getCurrencyForJsonObj((JSONObject) data.get("low")));
+			stats.setAvg(adapter.getCurrencyForJsonObj((JSONObject) data.get("avg")));
+			stats.setVolumeWeightenedAvg(adapter.getCurrencyForJsonObj((JSONObject) data.get("vwap")));
+			stats.setVolume(adapter.getCurrencyForJsonObj((JSONObject) data.get("vol")));
+			
+			stats.setLastTradeDefaultCurrency(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_local")));
+		    stats.setLastTradeAnyCurrency(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_orig")));
+		    stats.setLastTradeConvertedToDefault(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_all")));
+		    stats.setBuy(adapter.getCurrencyForJsonObj((JSONObject) data.get("buy")));
+		    stats.setSell(adapter.getCurrencyForJsonObj((JSONObject) data.get("sell")));
+		    stats.setTime(new Date(((Long) data.get("now")) / 1000));
+		    stats.setTimestampMicroSecs((Long) data.get("now"));
+		    
+		    return stats;
+		} catch (org.json.simple.parser.ParseException e) {
+			throw new MtGoxException(e);
+		}
+	}
+	
+	/**
+	 * Get statistics for currency with the fast ticker
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public CurrencyStatistics getStatistics(CurrencyType type) {
+		
+		String url = getTickerPath(type, true);
+		String queryJson = adapter.query(url);
+		
+		try {
+			JSONObject root = (JSONObject) parser.parse(queryJson);
+			String result = (String) root.get("result");
+			
+			
+			if (!"success".equals(result)) {
+				throw new MtGoxException(result);
+			}
+			
+			JSONObject data = (JSONObject) root.get("data");
+			
+			CurrencyStatistics stats = new CurrencyStatistics();
+		    stats.setLastTradeDefaultCurrency(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_local")));
+		    stats.setLastTradeAnyCurrency(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_orig")));
+		    stats.setLastTradeConvertedToDefault(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_all")));
+		    stats.setBuy(adapter.getCurrencyForJsonObj((JSONObject) data.get("buy")));
+		    stats.setSell(adapter.getCurrencyForJsonObj((JSONObject) data.get("sell")));
+		    stats.setTime(new Date(((Long) data.get("now")) / 1000));
+		    stats.setTimestampMicroSecs((Long) data.get("now"));
+		    
+		    return stats;
+		} catch (org.json.simple.parser.ParseException e) {
+			throw new MtGoxException(e);
+		}
+	}
+	
+	/**
+	 * Get last price
+	 * 
+	 * @param cur
+	 * @return
+	 * @throws ParseException
+	 */
+	public CurrencyData getLastPrice(CurrencyType cur) throws ParseException {
 		if (cur == null) {
 			throw new IllegalArgumentException("CurrencyType mustn't be null");
 		}
@@ -87,32 +184,30 @@ public class StatisticsService implements Serializable {
 		 */
 		String queryResult = adapter.query(urlPath, query_args);
 
-		/*
-		 * Result sample :{ "result":"success", "data": { "high": **Currency
-		 * Object - USD**, "low": **Currency Object - USD**, "avg": **Currency
-		 * Object - USD**, "vwap": **Currency Object - USD**, "vol": **Currency
-		 * Object - BTC**, "last_local": **Currency Object - USD**, "last_orig":
-		 * **Currency Object - ???**, "last_all": **Currency Object - USD**,
-		 * "last": **Currency Object - USD**, "buy": **Currency Object - USD**,
-		 * "sell": **Currency Object - USD**, "now": "1364689759572564" }}
-		 */
-
 		try {
-			JSONParser parser = new JSONParser();
-			BigDecimal last = null;
+			double last;
+			
 			JSONObject httpAnswerJson = (JSONObject) (parser.parse(queryResult));
+			String result = (String) httpAnswerJson.get("result");
+			
+			if (!"success".equals(result)) {
+				throw new MtGoxException(result);
+			}
+			
 			JSONObject dataJson = (JSONObject) httpAnswerJson.get("data");
 			JSONObject lastJson = (JSONObject) dataJson.get("last");
 			String last_String = (String) lastJson.get("value");
-			last = new BigDecimal(Double.parseDouble(last_String));
-			return last;
+			last = Double.parseDouble(last_String);
+			return new CurrencyData(last, cur);
 		} catch (Exception exc) {
-			logger.log(Level.WARNING, exc.getMessage());
-			return null;
+			throw new MtGoxException(exc);
 		}
 	}
 
-	public void refreshRates() throws ParseException {
+	
+	
+	
+	public void refreshPeriods() throws ParseException {
 		synchronized (lock) {
 
 			final Date NOW = new Date();
@@ -129,7 +224,7 @@ public class StatisticsService implements Serializable {
 			BTCRate rate = new BTCRate();
 			rate.setDateTime(NOW);
 			rate.setCurrency(CurrencyType.USD);
-			rate.setValue(getLastPrice(rate.getCurrency()).doubleValue());
+			rate.setValue(getLastPrice(rate.getCurrency()).getValue());
 
 			// Add rate to current period
 			rate.setPeriod(currentPeriod);
@@ -137,24 +232,24 @@ public class StatisticsService implements Serializable {
 
 			// calculate values for period
 
-			currentPeriod.setAvgRate(getAvg(currentPeriod.getRates()));
+			currentPeriod.setAvgRate(calcAvgForRates(currentPeriod.getRates()));
 			currentPeriod.setLatestRate(rate);
 
 			BTCRate maxRate = currentPeriod.getRates().get(
-					getMaxIndex(currentPeriod.getRates()));
+					calcMaxIndex(currentPeriod.getRates()));
 			BTCRate minRate = currentPeriod.getRates().get(
-					getMinIndex(currentPeriod.getRates()));
+					calcMinIndex(currentPeriod.getRates()));
 			currentPeriod.setMaxRate(maxRate);
 			currentPeriod.setMaxRate(minRate);
 
-			currentPeriod.setStdDev(getStdDev(currentPeriod.getRates()));
+			currentPeriod.setStdDev(calcStdDev(currentPeriod.getRates()));
 			
-			currentPeriod.setPropDown(getPropability(currentPeriod.getAvgRate(), currentPeriod.getStdDev(), PropabilityType.LESS_THAN, currentPeriod.getLatestRate().getValue()));
-			currentPeriod.setPropUp(getPropability(currentPeriod.getAvgRate(), currentPeriod.getStdDev(), PropabilityType.GREATER_THAN, currentPeriod.getLatestRate().getValue()));
+			currentPeriod.setPropDown(calcPropability(currentPeriod.getAvgRate(), currentPeriod.getStdDev(), PropabilityType.LESS_THAN, currentPeriod.getLatestRate().getValue()));
+			currentPeriod.setPropUp(calcPropability(currentPeriod.getAvgRate(), currentPeriod.getStdDev(), PropabilityType.GREATER_THAN, currentPeriod.getLatestRate().getValue()));
 		}
 	}
 
-	private static double getPropability(double avg, double dev,
+	private static double calcPropability(double avg, double dev,
 			PropabilityType type, double value) {
 		NormalDistributionImpl normDistr = new NormalDistributionImpl();
 
@@ -177,7 +272,7 @@ public class StatisticsService implements Serializable {
 		}
 	}
 
-	private static double getAvg(List<BTCRate> rates) {
+	private static double calcAvgForRates(List<BTCRate> rates) {
 		double avg = 0.0;
 
 		for (BTCRate rate : rates) {
@@ -190,7 +285,7 @@ public class StatisticsService implements Serializable {
 		return avg;
 	}
 
-	private static int getMinIndex(List<BTCRate> rates) {
+	private static int calcMinIndex(List<BTCRate> rates) {
 		int minIndex = -1;
 		for (int i = 0; i < rates.size(); i++) {
 			if (minIndex == -1)
@@ -203,7 +298,7 @@ public class StatisticsService implements Serializable {
 		return minIndex;
 	}
 
-	private static int getMaxIndex(List<BTCRate> rates) {
+	private static int calcMaxIndex(List<BTCRate> rates) {
 		int maxIndex = -1;
 		int i = 0;
 		for (BTCRate rate : rates) {
@@ -217,13 +312,13 @@ public class StatisticsService implements Serializable {
 		return maxIndex;
 	}
 
-	private static double getStdDev(List<BTCRate> rates) {
+	private static double calcStdDev(List<BTCRate> rates) {
 		if (rates.size() == 0)
 			return 0.0;
 
 		try {
 
-			double avg = getAvg(rates);
+			double avg = calcAvgForRates(rates);
 
 			double var = 0.0;
 			for (BTCRate rate : rates) {

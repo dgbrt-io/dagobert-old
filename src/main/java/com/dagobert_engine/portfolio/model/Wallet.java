@@ -1,5 +1,7 @@
 package com.dagobert_engine.portfolio.model;
 
+import com.dagobert_engine.core.model.CurrencyData;
+
 /**
  * Wallet data
  * 
@@ -10,40 +12,40 @@ package com.dagobert_engine.portfolio.model;
  *
  */
 public class Wallet {
-	private Currency balance;
-	private Currency dailyWithdrawLimit;
-	private Currency maxWithdraw;
-	private Currency monthlyWithdrawLimit;
-	private Currency openOrders;
+	private CurrencyData balance;
+	private CurrencyData dailyWithdrawLimit;
+	private CurrencyData maxWithdraw;
+	private CurrencyData monthlyWithdrawLimit;
+	private CurrencyData openOrders;
 	private int operations;
-	public Currency getBalance() {
+	public CurrencyData getBalance() {
 		return balance;
 	}
-	public void setBalance(Currency balance) {
+	public void setBalance(CurrencyData balance) {
 		this.balance = balance;
 	}
-	public Currency getDailyWithdrawLimit() {
+	public CurrencyData getDailyWithdrawLimit() {
 		return dailyWithdrawLimit;
 	}
-	public void setDailyWithdrawLimit(Currency dailyWithdrawLimit) {
+	public void setDailyWithdrawLimit(CurrencyData dailyWithdrawLimit) {
 		this.dailyWithdrawLimit = dailyWithdrawLimit;
 	}
-	public Currency getMaxWithdraw() {
+	public CurrencyData getMaxWithdraw() {
 		return maxWithdraw;
 	}
-	public void setMaxWithdraw(Currency getMaxWithdraw) {
+	public void setMaxWithdraw(CurrencyData getMaxWithdraw) {
 		this.maxWithdraw = getMaxWithdraw;
 	}
-	public Currency getMonthlyWithdrawLimit() {
+	public CurrencyData getMonthlyWithdrawLimit() {
 		return monthlyWithdrawLimit;
 	}
-	public void setMonthlyWithdrawLimit(Currency getMonthlyWithdrawLimit) {
+	public void setMonthlyWithdrawLimit(CurrencyData getMonthlyWithdrawLimit) {
 		this.monthlyWithdrawLimit = getMonthlyWithdrawLimit;
 	}
-	public Currency getOpenOrders() {
+	public CurrencyData getOpenOrders() {
 		return openOrders;
 	}
-	public void setOpenOrders(Currency getOpenOrders) {
+	public void setOpenOrders(CurrencyData getOpenOrders) {
 		this.openOrders = getOpenOrders;
 	}
 	public int getOperations() {
@@ -52,9 +54,9 @@ public class Wallet {
 	public void setOperations(int operations) {
 		this.operations = operations;
 	}
-	public Wallet(Currency balance, Currency dailyWithdrawLimit,
-			Currency getMaxWithdraw, Currency getMonthlyWithdrawLimit,
-			Currency getOpenOrders, int operations) {
+	public Wallet(CurrencyData balance, CurrencyData dailyWithdrawLimit,
+			CurrencyData getMaxWithdraw, CurrencyData getMonthlyWithdrawLimit,
+			CurrencyData getOpenOrders, int operations) {
 		super();
 		this.balance = balance;
 		this.dailyWithdrawLimit = dailyWithdrawLimit;

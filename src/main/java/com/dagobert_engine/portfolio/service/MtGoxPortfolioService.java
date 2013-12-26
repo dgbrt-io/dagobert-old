@@ -20,53 +20,20 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.dagobert_engine.config.service.ConfigService;
+import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.model.CurrencyData;
+import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
 import com.dagobert_engine.core.util.MtGoxException;
-import com.dagobert_engine.portfolio.model.Currency;
+import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.portfolio.model.MtGoxPermission;
 import com.dagobert_engine.portfolio.model.Wallet;
-import com.dagobert_engine.trading.model.CurrencyType;
 
 
 
 @ApplicationScoped
 public class MtGoxPortfolioService implements Serializable {
-	// Example JSON data
-	//{
-//	    "data": {
-//	        "Created": "yyyy-mm-dd hh:mm:ss",
-//	        "Id": "abc123",
-//	        "Index": "123456",
-//	        "Language": "en_US",
-//	        "Last_Login": "yyyy-mm-dd hh:mm:ss",
-//	        "Link": "M78123456X",
-//	        "Login": "username",
-//	        "Monthly_Volume":                   **Currency Object**,
-//	        "Trade_Fee": 0.6,
-//	        "Rights": ['deposit', 'get_info', 'merchant', 'trade', 'withdraw'],
-//	        "Wallets": {
-//	            "BTC": {
-//	                "Balance":                  **Currency Object**,
-//	                "Daily_Withdraw_Limit":     **Currency Object**,
-//	                "Max_Withdraw":             **Currency Object**,
-//	                "Monthly_Withdraw_Limit": null,
-//	                "Open_Orders":              **Currency Object**,
-//	                "Operations": 1,
-//	            },
-//	            "USD": {
-//	                "Balance":                  **Currency Object**,
-//	                "Daily_Withdraw_Limit":     **Currency Object**,
-//	                "Max_Withdraw":             **Currency Object**,
-//	                "Monthly_Withdraw_Limit":   **Currency Object**,
-//	                "Open_Orders":              **Currency Object**,
-//	                "Operations": 0,
-//	            },
-//	            "JPY":{...}, "EUR":{...},
-//	            // etc, depends what wallets you have
-//	        },
-//	    },
-//	    "result": "success"
-	//}
 	
 	private static final long serialVersionUID = 1669780614487420871L;
 
@@ -84,6 +51,9 @@ public class MtGoxPortfolioService implements Serializable {
 	@Inject
 	private MtGoxApiAdapter adapter;
 	
+	@Inject
+	private ConfigService config;
+	
 	/**
 	 * Parser
 	 */
@@ -94,11 +64,19 @@ public class MtGoxPortfolioService implements Serializable {
 	 */
 	private JSONObject lastMoneyInfoData = null;
 	
+	// TODO: money/wallet/history
+	// TODO: MONEY/BITCOIN/GET_ADDRESS
+	// TODO: SECURITY/HOTP/GEN
+	// TODO: STREAM/LIST_PUBLIC
+	
 	/**
 	 * Refresh Json Data
 	 */
 	private void refreshJsonData() {
-		String jsonResult = adapter.query(API_GET_INFO);
+		
+		CurrencyType currency = CurrencyType.valueOf(config.getProperty(KeyName.DEFAULT_CURRENCY));
+		
+		String jsonResult = adapter.query(MtGoxQueryUtil.create(currency, API_GET_INFO));
 		JSONObject root;
 		
 		try {
@@ -115,22 +93,6 @@ public class MtGoxPortfolioService implements Serializable {
 		
 		lastMoneyInfoData = (JSONObject) root.get("data");
 	}
-		
-	/**
-	 * Transforms a json object to a json object
-	 * 
-	 * @param obj
-	 * @return
-	 */
-	private Currency getCurrencyForJsonObj(JSONObject obj) {
-
-		Currency curr = new Currency();
-		curr.setType(CurrencyType.valueOf((String) obj.get("currency")));
-		double value = 
-				Double.parseDouble((String) obj.get("value_int")) / adapter.getDivisionFactors().get(curr.getType());
-		curr.setValue(value);
-		return curr;
-	}
 	
 	/**
 	 * Get monthly volume
@@ -138,13 +100,13 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public Currency getMonthlyVolume(boolean forceRefresh) {
+	public CurrencyData getMonthlyVolume(boolean forceRefresh) {
 		if (lastMoneyInfoData == null || forceRefresh) {
 			refreshJsonData();
 		}
 		
 		JSONObject monthlyVolume = (JSONObject) lastMoneyInfoData.get("Monthly_Volume");
-		return getCurrencyForJsonObj(monthlyVolume);
+		return adapter.getCurrencyForJsonObj(monthlyVolume);
 		
 	}
 	
@@ -282,11 +244,11 @@ public class MtGoxPortfolioService implements Serializable {
 				
 				Wallet wallet = new Wallet();
 				
-				wallet.setBalance(getCurrencyForJsonObj((JSONObject) walletJson.get("Balance")));
-				wallet.setDailyWithdrawLimit(getCurrencyForJsonObj((JSONObject) walletJson.get("Daily_Withdraw_Limit")));
-				wallet.setMaxWithdraw(getCurrencyForJsonObj((JSONObject) walletJson.get("Max_Withdraw")));
-				wallet.setMonthlyWithdrawLimit(getCurrencyForJsonObj((JSONObject) walletJson.get("Monthly_Withdraw_Limit")));
-				wallet.setOpenOrders(getCurrencyForJsonObj((JSONObject) walletJson.get("Open_Orders")));
+				wallet.setBalance(adapter.getCurrencyForJsonObj((JSONObject) walletJson.get("Balance")));
+				wallet.setDailyWithdrawLimit(adapter.getCurrencyForJsonObj((JSONObject) walletJson.get("Daily_Withdraw_Limit")));
+				wallet.setMaxWithdraw(adapter.getCurrencyForJsonObj((JSONObject) walletJson.get("Max_Withdraw")));
+				wallet.setMonthlyWithdrawLimit(adapter.getCurrencyForJsonObj((JSONObject) walletJson.get("Monthly_Withdraw_Limit")));
+				wallet.setOpenOrders(adapter.getCurrencyForJsonObj((JSONObject) walletJson.get("Open_Orders")));
 				wallet.setOperations(Integer.parseInt((String) walletJson.get("Operations")));
 				
 				wallets.put(type, wallet);
@@ -330,11 +292,10 @@ public class MtGoxPortfolioService implements Serializable {
 	}
 	
 	public BigDecimal getBalance(CurrencyType currency) {
-		String urlPath = API_GET_INFO;
 		HashMap<String, String> query_args = new HashMap<>();
 
 
-		String queryResult = adapter.query(urlPath, query_args);
+		String queryResult = adapter.query(MtGoxQueryUtil.create(currency, API_GET_INFO), query_args);
 		/*
 		 * Sample result { "data": { "Created": "yyyy-mm-dd hh:mm:ss", "Id":
 		 * "abc123", "Index": "123", "Language": "en_US", "Last_Login":
