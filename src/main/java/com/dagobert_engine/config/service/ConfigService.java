@@ -1,0 +1,101 @@
+package com.dagobert_engine.config.service;
+
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import com.dagobert_engine.config.util.KeyName;
+
+/**
+ * 
+ * @author Michael Kunzmann (mail@michaelkunzmann.com)
+ * @version 0.1-ALPHA
+ *
+ * License http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
+@ApplicationScoped
+public class ConfigService implements Serializable {
+
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3484221239454953716L;
+	
+	/**
+	 * Properties file
+	 */
+	public static final String PROPERTIES_FILE = "/com/dagobert_engine/settings.properties";
+	
+	/**
+	 * Logger
+	 */
+	@Inject
+	private Logger logger;
+
+	/**
+	 * Properties
+	 */
+	private Map<String, String> properties = null;
+
+	/** 
+	 * Initial setup
+	 */
+	private void setup() {
+		
+		logger.log(Level.INFO, "Loading properties...");
+		
+		properties = new HashMap<>();
+			try {
+				Properties p = new Properties();
+				InputStream in = getClass().getResourceAsStream(PROPERTIES_FILE);
+				p.load(in);
+
+				Enumeration<Object> keys = p.keys();
+				while (keys.hasMoreElements()) {
+					String key = (String) keys.nextElement();
+					properties.put(key, p.getProperty(key));
+				}
+
+			} catch (Exception e) {
+				logger.log(Level.SEVERE,
+						e.getClass().getName() + ": " + e.getMessage());
+			}
+
+		logger.log(Level.INFO, "Done loading properties.");
+	}
+
+	/**
+	 * Get property for KeyName
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public String getProperty(KeyName key) {
+		if (properties == null)
+			setup();
+		
+		return properties.get(key.name());
+	}
+
+	/**
+	 * Set property
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void setProperty(KeyName key, String value) {
+		if (properties == null)
+			setup();
+		properties.put(key.name(), value);
+	}
+}
