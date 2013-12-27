@@ -24,9 +24,9 @@
     <version>0.1-ALPHA</version>
     <packaging>war</packaging>
     <name>dagobert_engine</name>
-    <description>A starter Java EE 6 webapp project for use on JBoss AS 7 / EAP 6, generated from the jboss-javaee6-webapp archetype</description>
+    <description>Java EE 6 tradng engine</description>
 
-    <url>http://jboss.org/jbossas</url>
+    <url>https://github.com/MitchK/dagobert</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
