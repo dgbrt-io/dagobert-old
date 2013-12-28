@@ -18,6 +18,9 @@
                              	          
                                - - - - - - - - - - - - - - - - - - - - - - 
 								  
+Donations
+=========
+Donations can be sent to 1BvBCN5dcUXbC4Vp7v5fPXg8LPNChcheYh
 								  
 About Dagobert			  
 =========================
@@ -87,11 +90,20 @@ Requirements (recommended)
  * JBoss EAP 6.1.0
  
  
-Getting started
+Building
 -----------------
 
- 1. Clone with git and import it into the IDE of your choice.
- 2. Go to src/main/resources/com/dagobert_engine and create a file named settings.properties (you can use example.properties) with your API keys. Please be aware that your keys are permitted for all the rights. 
- 3. To create a custom strategy, implement com.dagobert_engine.trading.service.Strategy with the CDI annotation @Alternative and add it as alternative to beans.xml
- 4. Build the app with maven and deploy it to your server.
+    git clone https://github.com/MitchK/dagobert.git
+    cd dagobert
+    mvn clean package
+    
+Deploying to JBoss AS
+---------------------
+
+    mvn clean package jboss-as:deploy
+    
+Running JUnit Tests
+-------------------
+
+    mvn clean test -Parq-jbossas-managed
 
