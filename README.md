@@ -47,7 +47,6 @@ Not implemented yet
  * Strategy editor
  * Benchmarking
  * OSGI support
- * <s>Dynamic HTML5/JS UI, for smartphone, tablet and desktop</s> Won't be implemented with this project. 
  * Chart generation
  * JSON support for REST
  * SOAP support (XML only)
