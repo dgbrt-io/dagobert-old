@@ -13,29 +13,29 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.model.CurrencyType;
 
 /**
  * 
  * @author Michael Kunzmann (mail@michaelkunzmann.com)
  * @version 0.1-ALPHA
- *
- * License http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *          License http://www.apache.org/licenses/LICENSE-2.0
+ * 
  */
 @ApplicationScoped
 public class ConfigService implements Serializable {
-
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3484221239454953716L;
-	
+
 	/**
 	 * Properties file
 	 */
 	public static final String PROPERTIES_FILE = "/com/dagobert_engine/settings.properties";
-	
+
 	/**
 	 * Logger
 	 */
@@ -47,29 +47,30 @@ public class ConfigService implements Serializable {
 	 */
 	private Map<String, String> properties = null;
 
-	/** 
+	/**
 	 * Initial setup
 	 */
 	private void setup() {
-		
+
 		logger.log(Level.INFO, "Loading properties...");
-		
+
 		properties = new HashMap<>();
-			try {
-				Properties p = new Properties();
-				InputStream in = getClass().getResourceAsStream(PROPERTIES_FILE);
-				p.load(in);
+		try {
+			Properties p = new Properties();
+			InputStream in = getClass().getResourceAsStream(PROPERTIES_FILE);
+			p.load(in);
 
-				Enumeration<Object> keys = p.keys();
-				while (keys.hasMoreElements()) {
-					String key = (String) keys.nextElement();
-					properties.put(key, p.getProperty(key));
-				}
-
-			} catch (Exception e) {
-				logger.log(Level.SEVERE,
-						e.getClass().getName() + ": " + e.getMessage());
+			Enumeration<Object> keys = p.keys();
+			while (keys.hasMoreElements()) {
+				String key = (String) keys.nextElement();
+				logger.info("Setting property " + key);
+				properties.put(key, p.getProperty(key));
 			}
+
+		} catch (Exception e) {
+			logger.log(Level.SEVERE,
+					e.getClass().getName() + ": " + e.getMessage());
+		}
 
 		logger.log(Level.INFO, "Done loading properties.");
 	}
@@ -83,8 +84,18 @@ public class ConfigService implements Serializable {
 	public String getProperty(KeyName key) {
 		if (properties == null)
 			setup();
-		
+
 		return properties.get(key.name());
+	}
+
+	/**
+	 * Get default currency
+	 * 
+	 * @return
+	 */
+	public CurrencyType getDefaultCurrency() {
+
+		return CurrencyType.valueOf(getProperty(KeyName.DEFAULT_CURRENCY));
 	}
 
 	/**

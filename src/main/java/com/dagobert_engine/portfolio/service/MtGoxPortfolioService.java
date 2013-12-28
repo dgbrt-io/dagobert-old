@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -70,11 +71,29 @@ public class MtGoxPortfolioService implements Serializable {
 	 */
 	private JSONParser parser = new JSONParser();
 	
-	/**
-	 * Cache
-	 */
-	private JSONObject lastMoneyInfoData = null;
-	
+	private JSONObject getData() {
+
+		
+		CurrencyType currency = CurrencyType.valueOf(config.getProperty(KeyName.DEFAULT_CURRENCY));
+		
+		String jsonResult = adapter.query(MtGoxQueryUtil.create(currency, API_GET_INFO));
+		JSONObject root;
+		
+		try {
+			root = (JSONObject) parser.parse(jsonResult);
+		} catch (ParseException e) {
+			throw new MtGoxException(e);
+		}
+		
+		String result = (String) root.get("result");
+		
+		if (!"success".equals(result)) {
+			throw new MtGoxException("Error invoking MtGox Api: " + result);
+		}
+		
+		JSONObject data = (JSONObject) root.get("data");
+		return data;
+	}
 	
 	/**
 	 * Get last 50 results of the transaction history
@@ -94,7 +113,7 @@ public class MtGoxPortfolioService implements Serializable {
 	public List<Transaction> getTransactions(CurrencyType curr, int page) {
 		
 		// create url and params
-		final String url = MtGoxQueryUtil.create(curr, API_MONEY_WALLET_HISTORY);
+		final String url = API_MONEY_WALLET_HISTORY;
 		final HashMap<String, String> params = QueryArgBuilder.create().add("currency", curr.name()).add("page", ""+page).build();
 		
 		// Get json string
@@ -124,7 +143,7 @@ public class MtGoxPortfolioService implements Serializable {
 					CurrencyData balance = adapter.getCurrencyForJsonObj((JSONObject) currentObj.get("Balance"));
 					String info = (String) currentObj.get("Info");
 					
-					String[] link = (String[]) currentObj.get("Link");
+					JSONArray link = (JSONArray) currentObj.get("Link");
 					
 					
 					transaction.setTime(time);
@@ -133,10 +152,10 @@ public class MtGoxPortfolioService implements Serializable {
 					transaction.setBalance(balance);
 					transaction.setInfo(info);
 					
-					if (link.length > 0) {
-						transaction.setTransactionUuid(link[0]);
-						transaction.setTransactionCategory(Transaction.TransactionCategory.forLink(link[1]));
-						transaction.setIdentifier(link[2]);
+					if (link.size() > 0) {
+						transaction.setTransactionUuid((String) link.get(0));
+						transaction.setTransactionCategory(Transaction.TransactionCategory.forLink((String) link.get(1)));
+						transaction.setIdentifier((String) link.get(2));
 					}
 					
 					resultList.add(transaction);
@@ -153,32 +172,7 @@ public class MtGoxPortfolioService implements Serializable {
 	
 	// TODO: MONEY/BITCOIN/GET_ADDRESS
 	// TODO: SECURITY/HOTP/GEN
-	// TODO: STREAM/LIST_PUBLIC
-	
-	/**
-	 * Refresh Json Data
-	 */
-	private void refreshJsonData() {
-		
-		CurrencyType currency = CurrencyType.valueOf(config.getProperty(KeyName.DEFAULT_CURRENCY));
-		
-		String jsonResult = adapter.query(MtGoxQueryUtil.create(currency, API_GET_INFO));
-		JSONObject root;
-		
-		try {
-			root = (JSONObject) parser.parse(jsonResult);
-		} catch (ParseException e) {
-			throw new MtGoxException(e);
-		}
-		
-		String result = (String) root.get("result");
-		
-		if (!"success".equals(result)) {
-			throw new MtGoxException("Error invoking MtGox Api: " + result);
-		}
-		
-		lastMoneyInfoData = (JSONObject) root.get("data");
-	}
+	// TODO: STREAM/LIST_
 	
 	/**
 	 * Get monthly volume
@@ -186,12 +180,9 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public CurrencyData getMonthlyVolume(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
+	public CurrencyData getMonthlyVolume() {
 		
-		JSONObject monthlyVolume = (JSONObject) lastMoneyInfoData.get("Monthly_Volume");
+		JSONObject monthlyVolume = (JSONObject) getData().get("Monthly_Volume");
 		return adapter.getCurrencyForJsonObj(monthlyVolume);
 		
 	}
@@ -202,12 +193,8 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public double getTradeFee(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
-		
-		return Double.parseDouble((String) lastMoneyInfoData.get("Trade_Fee"));
+	public double getTradeFee() {
+		return (Double) getData().get("Trade_Fee");
 	}
 	
 	/**
@@ -216,13 +203,10 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public MtGoxPermission[] getApiPermissions(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
+	public MtGoxPermission[] getApiPermissions() {
 		
 		ArrayList<MtGoxPermission> perms = new ArrayList<>();
-		JSONArray array = (JSONArray) lastMoneyInfoData.get("Rights");
+		JSONArray array = (JSONArray) getData().get("Rights");
 		
 		for (int i = 0; i < array.size(); i++) {
 			perms.add(MtGoxPermission.fromString((String) array.get(i)));
@@ -233,13 +217,10 @@ public class MtGoxPortfolioService implements Serializable {
 	
 	/**
 	 * Get Link
+	 * TODO: 47:19,766 SEVERE [com.dagobert_engine.core.service.MtGoxApiAdapter]  HTTP Error: 403, answer: {"result":"error","error":"Identification required to access private API","token":"login_error_invalid_nonce"}
 	 */
-	public String getLink(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
-		
-		return (String) lastMoneyInfoData.get("Link");
+	public String getLink() {
+		return (String) getData().get("Link");
 		
 	}
 	
@@ -249,14 +230,11 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public Date getLastLogin(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
+	public Date getLastLogin() {
 		
 		DateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 		try {
-			return df.parse((String) lastMoneyInfoData.get("Last_Login"));
+			return df.parse((String) getData().get("Last_Login"));
 		} catch (java.text.ParseException e) {
 			throw new MtGoxException(e);
 		}
@@ -268,16 +246,12 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public Date getJoinDate(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
-		
+	public Date getJoinDate() {
 
 		
 		DateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 		try {
-			return df.parse((String) lastMoneyInfoData.get("Created"));
+			return df.parse((String) getData().get("Created"));
 		} catch (java.text.ParseException e) {
 			throw new MtGoxException(e);
 		}
@@ -289,12 +263,8 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public String getId(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
-		
-		return (String) lastMoneyInfoData.get("Id");
+	public String getId() {
+		return (String) getData().get("Id");
 	}
 	
 	/**
@@ -303,25 +273,18 @@ public class MtGoxPortfolioService implements Serializable {
 	 * @param forceRefresh
 	 * @return
 	 */
-	public Locale getLocale(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
-		
-		return new Locale((String) lastMoneyInfoData.get("Language"));
+	public Locale getLocale() {
+		return new Locale((String) getData().get("Language"));
 	}
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public Map<CurrencyType, Wallet> getWallets(boolean forceRefresh) {
-		if (lastMoneyInfoData == null || forceRefresh) {
-			refreshJsonData();
-		}
+	public Map<CurrencyType, Wallet> getWallets() {
 		
 		HashMap<CurrencyType, Wallet> wallets = new HashMap<>();
-		JSONObject walletsJson = (JSONObject) lastMoneyInfoData.get("wallets");
+		JSONObject walletsJson = (JSONObject) getData().get("wallets");
 		
 		for (CurrencyType type :  CurrencyType.values()) {
 			
@@ -349,6 +312,8 @@ public class MtGoxPortfolioService implements Serializable {
 	}
 	
 	public String sendBtc(BigDecimal amount, String dest_address) { // TODO
+		
+		throw new NotImplementedException();
 		/*
 		 * String urlPath = API_WITHDRAW; HashMap<String, String> query_args =
 		 * new HashMap<>(); /* Params address : Target bitcoin address
@@ -374,14 +339,14 @@ public class MtGoxPortfolioService implements Serializable {
 		 * } catch (ParseException ex) { logger.log(Level.SEVERE,
 		 * ex.getMessage()); }
 		 */
-		return ""; // TODO Edit
+		//return ""; // TODO Edit
 	}
 	
-	public BigDecimal getBalance(CurrencyType currency) {
+	public CurrencyData getBalance(CurrencyType currency) {
 		HashMap<String, String> query_args = new HashMap<>();
 
 
-		String queryResult = adapter.query(MtGoxQueryUtil.create(currency, API_GET_INFO), query_args);
+		String queryResult = adapter.query(MtGoxQueryUtil.create(config.getDefaultCurrency(), API_GET_INFO), query_args);
 		/*
 		 * Sample result { "data": { "Created": "yyyy-mm-dd hh:mm:ss", "Id":
 		 * "abc123", "Index": "123", "Language": "en_US", "Last_Login":
@@ -409,7 +374,7 @@ public class MtGoxPortfolioService implements Serializable {
 					.get(currency.name())).get("Balance");
 
 			String balance = (String) walletJson.get("value");
-			return new BigDecimal(Double.parseDouble(balance));
+			return new CurrencyData(Double.parseDouble(balance), currency);
 
 		} catch (Exception ex) {
 			logger.log(Level.WARNING, ex.getMessage());

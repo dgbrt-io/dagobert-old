@@ -1,4 +1,4 @@
-package com.dagobert_engine.test;
+package com.dagobert_engine.test.util;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -54,7 +54,7 @@ public enum ArchiveService {
 		
 		addWebInf();
 
-		addTestklassen();
+		addTestClasses();
 		
 //		final Path arquillianPath = Paths.get("target/arquillian");
 //		try {
@@ -139,11 +139,11 @@ public enum ArchiveService {
 		}
 	}
 
-	private void addTestklassen() {
+	private void addTestClasses() {
 		archive.addClass(AbstractTest.class);
 		
 		final Filter<ArchivePath> filter = Filters.include(BASE_PACKAGE_PATH + "[\\w-/]*Test\\.class");
-		for (Class<?> clazz : Testklassen.getInstance().getTestklassen()) {
+		for (Class<?> clazz : Testclasses.getInstance().getTestklassen()) {
 			archive.addPackages(false, filter, clazz.getPackage());
 		}
 	}

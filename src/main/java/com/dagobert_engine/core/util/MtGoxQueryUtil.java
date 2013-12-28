@@ -17,6 +17,6 @@ public class MtGoxQueryUtil {
 	
 	private MtGoxQueryUtil() {}
 	public static String create(CurrencyType type, String query) {
-		return CurrencyType.BTC.name() + type.name() + "/" + query;
+		return "BTC" + type.name() + "/" + query;
 	}
 }

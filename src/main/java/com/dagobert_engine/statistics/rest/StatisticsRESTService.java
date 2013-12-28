@@ -13,7 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
 import com.dagobert_engine.statistics.model.Period;
-import com.dagobert_engine.statistics.service.StatisticsService;
+import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 
 /**
  * Statistics rest service
@@ -32,7 +32,7 @@ import com.dagobert_engine.statistics.service.StatisticsService;
 public class StatisticsRESTService {
 	
 	@Inject
-	private StatisticsService ratesService;
+	private MtGoxStatisticsService ratesService;
 
 	@GET
 	public List<Period> getPeriods() {

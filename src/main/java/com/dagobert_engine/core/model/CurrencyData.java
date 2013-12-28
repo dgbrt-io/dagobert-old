@@ -33,5 +33,11 @@ public class CurrencyData {
 	}
 
 	public CurrencyData() {}
+	@Override
+	public String toString() {
+		return "CurrencyData [value=" + value + ", type=" + type + "]";
+	}
+	
+	
 	
 }

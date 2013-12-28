@@ -38,7 +38,7 @@ public class BTCRate implements Serializable {
 	 * Currency
 	 */
 	@XmlElement
-	private CurrencyType currency = CurrencyType.USD; // default
+	private CurrencyType currency;
 	
 	
 	/**

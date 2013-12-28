@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
@@ -38,7 +37,7 @@ import com.dagobert_engine.statistics.model.Period.PropabilityType;
  */
 @Singleton
 @Startup
-public class StatisticsService implements Serializable {
+public class MtGoxStatisticsService implements Serializable {
 
 	public enum StatisticsServiceStatus {
 		RUNNING, NOT_RUNNING;
@@ -54,9 +53,6 @@ public class StatisticsService implements Serializable {
 
 	@Inject
 	private MtGoxApiAdapter adapter;
-
-	//@Inject
-	//private Logger logger;
 	
 
 	private JSONParser parser = new JSONParser();
@@ -75,7 +71,12 @@ public class StatisticsService implements Serializable {
 	
 
 	private static final String getTickerPath(CurrencyType cur, boolean fast) {
-		return CurrencyType.BTC.name() + cur.name() + "/MONEY/TICKER" + (fast ? "_FAST" : "");
+
+		if (cur.equals(CurrencyType.BTC)) {
+			throw new MtGoxException(cur + " is no reference currency. Please select any other currency");
+		}
+		
+		return "BTC" + cur.name() + "/MONEY/TICKER" + (fast ? "_FAST" : "");
 	}
 	
 
@@ -89,8 +90,10 @@ public class StatisticsService implements Serializable {
 	 * @return
 	 */
 	public AdvancedCurrencyStatistics getAdvancedStatistics(CurrencyType type) {
+		if (type.equals(CurrencyType.BTC))
+			throw new MtGoxException(type + " is no reference currency. Please select any other currency");
 		
-		String url = getTickerPath(type, true);
+		String url = getTickerPath(type, false);
 		String queryJson = adapter.query(url);
 		
 		try {
@@ -116,8 +119,8 @@ public class StatisticsService implements Serializable {
 		    stats.setLastTradeConvertedToDefault(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_all")));
 		    stats.setBuy(adapter.getCurrencyForJsonObj((JSONObject) data.get("buy")));
 		    stats.setSell(adapter.getCurrencyForJsonObj((JSONObject) data.get("sell")));
-		    stats.setTime(new Date(((Long) data.get("now")) / 1000));
-		    stats.setTimestampMicroSecs((Long) data.get("now"));
+		    stats.setTime(new Date(Long.valueOf(((String) data.get("now"))) / 1000));
+		    stats.setTimestampMicroSecs(Long.valueOf((String) data.get("now")));
 		    
 		    return stats;
 		} catch (org.json.simple.parser.ParseException e) {
@@ -132,6 +135,10 @@ public class StatisticsService implements Serializable {
 	 * @return
 	 */
 	public CurrencyStatistics getStatistics(CurrencyType type) {
+		
+		if (type.equals(CurrencyType.BTC)) {
+			throw new MtGoxException(type + " is no reference currency. Please select any other currency");
+		}
 		
 		String url = getTickerPath(type, true);
 		String queryJson = adapter.query(url);
@@ -153,8 +160,8 @@ public class StatisticsService implements Serializable {
 		    stats.setLastTradeConvertedToDefault(adapter.getCurrencyForJsonObj((JSONObject) data.get("last_all")));
 		    stats.setBuy(adapter.getCurrencyForJsonObj((JSONObject) data.get("buy")));
 		    stats.setSell(adapter.getCurrencyForJsonObj((JSONObject) data.get("sell")));
-		    stats.setTime(new Date(((Long) data.get("now")) / 1000));
-		    stats.setTimestampMicroSecs((Long) data.get("now"));
+		    stats.setTime(new Date(Long.parseLong(((String) data.get("now"))) / 1000));
+		    stats.setTimestampMicroSecs(Long.parseLong(((String) data.get("now"))));
 		    
 		    return stats;
 		} catch (org.json.simple.parser.ParseException e) {
@@ -169,9 +176,13 @@ public class StatisticsService implements Serializable {
 	 * @return
 	 * @throws ParseException
 	 */
-	public CurrencyData getLastPrice(CurrencyType cur) throws ParseException {
+	public CurrencyData getLastPrice(CurrencyType cur) {
 		if (cur == null) {
 			throw new IllegalArgumentException("CurrencyType mustn't be null");
+		}
+		
+		if (cur.equals(CurrencyType.BTC)) {
+			throw new MtGoxException(cur + " is no reference currency. Please select any other currency.");
 		}
 
 		String urlPath = getTickerPath(cur, true);
@@ -223,7 +234,7 @@ public class StatisticsService implements Serializable {
 
 			BTCRate rate = new BTCRate();
 			rate.setDateTime(NOW);
-			rate.setCurrency(CurrencyType.USD);
+			rate.setCurrency(CurrencyType.valueOf(configService.getProperty(KeyName.DEFAULT_CURRENCY)));
 			rate.setValue(getLastPrice(rate.getCurrency()).getValue());
 
 			// Add rate to current period

@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import com.dagobert_engine.config.service.ConfigService;
 import com.dagobert_engine.config.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
-import com.dagobert_engine.statistics.service.StatisticsService;
+import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
 
 /**
@@ -31,7 +31,7 @@ import com.dagobert_engine.trading.service.MtGoxTradeService;
 public class DucksHeartBeat extends Thread {
 	
 	@Inject
-	private StatisticsService ratesService;
+	private MtGoxStatisticsService ratesService;
 	
 	@Inject
 	private MtGoxTradeService traderService;
@@ -104,11 +104,11 @@ public class DucksHeartBeat extends Thread {
 			}
 			catch (MtGoxConnectionError exc) {
 	//			trans.rollback();
-				logger.log(Level.SEVERE, exc.getMessage());
+				logger.severe("HTTP Error: " + exc.getCode() + ", answer: " + exc.getAnswer());
 			}
 			catch (Exception exc) {
 	//			trans.rollback();
-				exc.printStackTrace();
+				logger.severe(exc.getClass().getName() + ", Message: " + exc.getMessage());
 			}
 		}
 	}

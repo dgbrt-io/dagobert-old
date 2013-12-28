@@ -1,4 +1,4 @@
-package com.dagobert_engine.test;
+package com.dagobert_engine.test.core;
 
 import javax.inject.Inject;
 import javax.naming.NamingException;
@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
+import com.dagobert_engine.test.util.AbstractTest;
 
 @RunWith(Arquillian.class)
 public class CoreTest extends AbstractTest {

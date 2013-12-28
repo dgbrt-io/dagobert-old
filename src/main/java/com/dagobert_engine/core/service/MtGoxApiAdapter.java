@@ -246,6 +246,8 @@ public class MtGoxApiAdapter implements Serializable {
 	 * @return
 	 */
 	public CurrencyData getCurrencyForJsonObj(JSONObject obj) {
+		if (obj == null)
+			throw new IllegalArgumentException("JSONObject mustn't be null");
 
 		CurrencyData curr = new CurrencyData();
 		curr.setType(CurrencyType.valueOf((String) obj.get("currency")));
@@ -262,6 +264,8 @@ public class MtGoxApiAdapter implements Serializable {
 	 * @return
 	 */
 	public String query(String path, HashMap<String, String> args) {
+		logger.info("Querying " + path + "...");
+		
 		if (keys == null) {
 			throw new ApiKeysNotSetException("Api keys are not set. Please set them up in <classpath>/bitcoin/core/settings.properties");
 		}
@@ -315,7 +319,7 @@ public class MtGoxApiAdapter implements Serializable {
 						(connection.getErrorStream())));
 				
 				answer = toString(br);
-				
+				logger.severe("HTTP Error: " + code + ", answer: " + answer);
 				throw new MtGoxConnectionError(code, answer);
 				
 			} else {

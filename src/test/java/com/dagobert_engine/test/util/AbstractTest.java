@@ -1,4 +1,4 @@
-package com.dagobert_engine.test;
+package com.dagobert_engine.test.util;
 
 
 import javax.naming.InitialContext;

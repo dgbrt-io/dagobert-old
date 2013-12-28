@@ -1,7 +1,6 @@
 package com.dagobert_engine.trading.service;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,11 +25,7 @@ import com.dagobert_engine.core.service.MtGoxApiAdapter;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.core.util.QueryArgBuilder;
-import com.dagobert_engine.portfolio.service.MtGoxPortfolioService;
-import com.dagobert_engine.statistics.model.Period;
-import com.dagobert_engine.statistics.service.StatisticsService;
 import com.dagobert_engine.trading.model.Order;
-import com.dagobert_engine.trading.model.Order.OrderType;
 import com.dagobert_engine.trading.model.Order.StatusType;
 
 /**
@@ -58,10 +53,6 @@ public class MtGoxTradeService implements Serializable {
 	public enum ResultType {
 		SUCCESS, FAILURE
 	}
-
-	public enum TrendType {
-		RISING, NORMAL, FALLING;
-	}
 	
 
 	public enum OrderAction {
@@ -74,13 +65,7 @@ public class MtGoxTradeService implements Serializable {
 	private final String API_MONEY_ORDERS = "MONEY/ORDERS";
 
 	@Inject
-	private StatisticsService statsService;
-
-	@Inject
 	private MtGoxApiAdapter adapter;
-	
-	@Inject
-	private MtGoxPortfolioService portfolioService;
 	
 	@Inject
 	private Strategy strategy;
@@ -101,10 +86,6 @@ public class MtGoxTradeService implements Serializable {
 	public static final String PARAM_PRICE_INT = "price_int";
 	
 	private JSONParser parser = new JSONParser();
-	
-	private List<Order> openOrders = new ArrayList<>();
-	private Order lastOrder = null;
-
 	
 	public boolean enoughMoneyToBuy(double balance, double currentPrice) {
 		return Double.parseDouble(configService.getProperty(KeyName.MIN_TRADE_AMOUNT)) <= currencyToBtc(balance, currentPrice);
@@ -214,8 +195,6 @@ public class MtGoxTradeService implements Serializable {
 			
 			JSONArray data = (JSONArray) root.get("data");
 			
-			logger.log(Level.INFO, "There are " + data.size() + " orders in total.");
-			
 			for (int i = 0; i < data.size(); i++) {
 				JSONObject orderJson = (JSONObject) data.get(i);
 				
@@ -256,103 +235,12 @@ public class MtGoxTradeService implements Serializable {
 	public void trade() {
 		
 		logger.log(Level.INFO, "Using " + strategy.getClass().getName() + " implementation...");
-		
-		// Get periods
-		final Period lastPeriod = statsService.getLastPeriod();
-		final Period currentPeriod = statsService.getCurrentPeriod();
 
-		if (lastPeriod == null) {
-			logger.log(Level.INFO, "There is no last period... waiting for this period to complete...");
-			logger.log(Level.INFO, "current time: " + new Date() + ", waiting for " + currentPeriod.getToTime());
-			return;
-		}
-
-		// Get current price
-		final double currentPrice = currentPeriod.getLatestRate().getValue();
-
-		// Get USD balance
-		final BigDecimal balanceUSD = portfolioService.getBalance(CurrencyType.USD);
-		
-		if (balanceUSD == null) {
-			
-			logger.log(Level.SEVERE, "There seems to be no USD wallet");
-			return;
-		}
-		
-		// Assign last order
-		
-		openOrders = getOpenOrders();
-		
-		if (openOrders.size() > 0) {
-			logger.log(Level.INFO, "There are still open orders by MtGox. Waiting until they're done. ");
-			logger.log(Level.INFO, "=== Open orders ===");
-			
-			for (Order order : openOrders) {
-				logger.log(Level.INFO, "  * " + order.toString());
-			}
-
-			logger.log(Level.INFO, "===================");
-			return;
-		}
-		
-		if (lastOrder == null && enoughMoneyToBuy(balanceUSD.doubleValue(), currentPrice)) {
-			logger.log(Level.INFO, "Creating fake Buy order for existing BTC balance at current rate");
-			lastOrder = createInitialBTCBuy(balanceUSD.doubleValue());
-		}
-		
-		if (lastOrder == null && enoughBTCtoSell(balanceUSD.doubleValue())){
-			logger.log(Level.INFO, "Creating fake Sell order for existing money balance at current rate");
-			lastOrder = createInitialBTCSell(balanceUSD.doubleValue());
-		}
-
-		if (lastOrder == null) {
-			throw new MtGoxException("There are not enough funds to trade with. Please add BTC or other money to your wallet.");
-		}
-		
 		Order orderGiven = strategy.createOrder();
 		
 		if (orderGiven != null) {
 			placeOrder(orderGiven);
 		}
-	}
-
-	/**
-	 * Creates an initial buy order
-	 * 
-	 * @param balanceBTC
-	 * @return
-	 */
-	private Order createInitialBTCBuy(double balanceBTC) {
-		Order buyOrder = new Order();
-		buyOrder.setOrderId("DAGOBERT-INITIAL-BUY-" + new Date().getTime());
-		buyOrder.setAmount(new CurrencyData(balanceBTC, CurrencyType.USD));
-		buyOrder.setPrice(new CurrencyData(statsService.getLastPeriod().getLatestRate()
-				.getValue(), CurrencyType.USD));
-		buyOrder.setCurrency(CurrencyType.USD);
-		buyOrder.setDate(new Date());
-		buyOrder.setStatus(StatusType.STOP);
-		buyOrder.setType(OrderType.BID);
-		return buyOrder;
-	}
-
-	/**
-	 * Creates an initial sell order
-	 * 
-	 * @param balanceBTC
-	 * @return
-	 */
-	private Order createInitialBTCSell(double balanceBTC) {
-
-		Order sellOrder = new Order();
-		sellOrder.setOrderId("DAGOBERT-INITIAL-SELL-" + new Date().getTime());
-		sellOrder.setAmount(new CurrencyData(balanceBTC, CurrencyType.USD));
-		sellOrder.setPrice(new CurrencyData(statsService.getLastPeriod().getLatestRate()
-				.getValue(), CurrencyType.USD));
-		sellOrder.setCurrency(CurrencyType.USD);
-		sellOrder.setDate(new Date());
-		sellOrder.setStatus(StatusType.STOP);
-		sellOrder.setType(OrderType.ASK);
-		return sellOrder;
 	}
 
 	/**

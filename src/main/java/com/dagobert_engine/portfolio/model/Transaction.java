@@ -185,6 +185,15 @@ public class Transaction {
 	public void setTransactionCategory(TransactionCategory transactionCategory) {
 		this.transactionCategory = transactionCategory;
 	}
+
+	@Override
+	public String toString() {
+		return "Transaction [time=" + time + ", value=" + value + ", balance="
+				+ balance + ", info=" + info + ", transactionUuid="
+				+ transactionUuid + ", transactionCategory="
+				+ transactionCategory + ", identifier=" + identifier
+				+ ", type=" + type + "]";
+	}
 	
 	
 }
