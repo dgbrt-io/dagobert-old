@@ -17,11 +17,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.dagobert_engine.config.service.ConfigService;
-import com.dagobert_engine.config.util.KeyName;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
+import com.dagobert_engine.core.service.ConfigService;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
+import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.core.util.QueryArgBuilder;

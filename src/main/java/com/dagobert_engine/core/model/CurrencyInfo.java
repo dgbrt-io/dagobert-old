@@ -1,5 +1,8 @@
 package com.dagobert_engine.core.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Information about a currency
  * 
@@ -9,6 +12,7 @@ package com.dagobert_engine.core.model;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
+@XmlRootElement
 public class CurrencyInfo {
 	public enum CurrencySymbolPosition {
 		BEFORE,
@@ -28,14 +32,31 @@ public class CurrencyInfo {
 //        "depth_channel":"abc123-def456"
 //    }
 
+	@XmlElement
 	private CurrencyType currency;
+	
+	@XmlElement
 	private String name;
+	
+	@XmlElement
 	private String symbol;
+	
+	@XmlElement
 	private int decimals;
+	
+	@XmlElement
 	private int decimalsDisplayed;
+	
+	@XmlElement
 	private CurrencySymbolPosition symbolPosition;
+	
+	@XmlElement
 	private String virtual;
+	
+	@XmlElement
 	private String tickerChannelId;
+	
+	@XmlElement
 	private String depthChannelId;
 	
 	public CurrencyInfo() {}

@@ -10,8 +10,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import com.dagobert_engine.config.service.ConfigService;
-import com.dagobert_engine.config.util.KeyName;
+import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 import com.dagobert_engine.trading.service.MtGoxTradeService;

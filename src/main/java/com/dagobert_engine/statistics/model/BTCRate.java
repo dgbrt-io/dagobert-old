@@ -32,7 +32,7 @@ public class BTCRate implements Serializable {
 	 * Date time
 	 */
 	@XmlAttribute
-	private Date dateTime;
+	private Date time;
 	
 	/**
 	 * Currency
@@ -55,11 +55,11 @@ public class BTCRate implements Serializable {
 	private double value;
 	
 	public Date getDateTime() {
-		return dateTime;
+		return time;
 	}
 
 	public void setDateTime(Date time) {
-		this.dateTime = time;
+		this.time = time;
 	}
 
 	public double getValue() {
@@ -89,7 +89,7 @@ public class BTCRate implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AssetRate [dateTime=" + dateTime + ", currency="
+		return "AssetRate [dateTime=" + time + ", currency="
 				+ currency + ", value=" + value + "]";
 	}
 

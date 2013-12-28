@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,12 +28,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.dagobert_engine.config.service.ConfigService;
-import com.dagobert_engine.config.util.KeyName;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
+import com.dagobert_engine.core.model.DagobertStatus;
 import com.dagobert_engine.core.util.ApiKeys;
 import com.dagobert_engine.core.util.ApiKeysNotSetException;
+import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
@@ -67,6 +68,9 @@ public class MtGoxApiAdapter implements Serializable {
 	// Path variables
 	private final String API_LAG = "MONEY/ORDER/LAG";
 	private final String API_ID_KEY = "MONEY/IDKEY";
+	
+	@Inject
+	private UpdateService updateService;
 	
 	/**
 	 * Logger
@@ -369,5 +373,15 @@ public class MtGoxApiAdapter implements Serializable {
 
 	public HashMap<CurrencyType, Integer> getDivisionFactors() {
 		return divisionFactors;
+	}
+
+	public DagobertStatus getStatus() {
+		DagobertStatus status = new DagobertStatus();
+		status.setDefaultCurrency(configService.getDefaultCurrency());
+		status.setDefaultPeriodLength(Integer.parseInt(configService.getProperty(KeyName.DEFAULT_PERIOD_LENGTH)));
+		status.setLag(getLag());
+		status.setRunning(updateService.isAlive());
+		status.setTime(new Date());
+		return status;
 	}
 }

@@ -1,5 +1,8 @@
 package com.dagobert_engine.core.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 
 /**
  * Currency data.
@@ -10,10 +13,15 @@ package com.dagobert_engine.core.model;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
+@XmlRootElement
 public class CurrencyData {
 	
+	@XmlElement
 	private double value;
+	
+	@XmlElement
 	private CurrencyType type;
+	
 	public double getValue() {
 		return value;
 	}

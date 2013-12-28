@@ -2,6 +2,9 @@ package com.dagobert_engine.core.model;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Statistics for a currency
  * 
@@ -11,42 +14,50 @@ import java.util.Date;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
+@XmlRootElement
 public class CurrencyStatistics {
 	
 	/**
 	 * Last trade in aux currency
 	 */
+	@XmlElement
 	private CurrencyData lastTradeDefaultCurrency;
 	
 	/**
 	 * Last trade of any currency
 	 */
+	@XmlElement
 	private CurrencyData lastTradeAnyCurrency;
 	
 	/**
 	 * Last trade converted to aux currency
 	 */
+	@XmlElement
 	private CurrencyData lastTradeConvertedToDefault;
 	
 	/**
 	 * Time of data
 	 */
+	@XmlElement
 	private Date time;
 	
 	/**
 	 * Time of data in micro seconds
 	 */
+	@XmlElement
 	private long timestampMicroSecs;
 	
 	/**
 	 * Buy
 	 */
+	@XmlElement
 	private CurrencyData buy;
 	
 
 	/**
 	 * Sell
 	 */
+	@XmlElement
 	private CurrencyData sell;
 	
 	

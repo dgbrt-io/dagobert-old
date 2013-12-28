@@ -2,6 +2,10 @@ package com.dagobert_engine.portfolio.model;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
 
@@ -14,6 +18,7 @@ import com.dagobert_engine.core.model.CurrencyType;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
+@XmlRootElement
 public class Transaction implements Comparable<Transaction> {
 	
 	/**
@@ -25,6 +30,7 @@ public class Transaction implements Comparable<Transaction> {
 	 * License http://www.apache.org/licenses/LICENSE-2.0
 	 *
 	 */
+	@XmlRootElement
 	public enum TransactionCategory {
 		
 		MONEY_BITCOIN_BLOCK_TX_OUT("Money_Bitcoin_Block_Tx_Out"),
@@ -86,52 +92,62 @@ public class Transaction implements Comparable<Transaction> {
 	/**
 	 * Transaction type
 	 */
+	@XmlAttribute
 	private Date time;
 	
 
 	/**
 	 * The rate
 	 */
+	@XmlElement
 	private CurrencyData rate;
 	
 	/**
 	 * The amount transferred
 	 */
+	@XmlElement
 	private CurrencyData value;
 	
 	/**
 	 * the balance immediately following this transaction
 	 */
+	@XmlElement
 	private CurrencyData balance;
 	
 	/**
 	 * Info text
 	 */
+	@XmlElement
 	private String info;
 	
 	/**
 	 * The transaction UUID
 	 */
+	@XmlElement
 	private String transactionUuid;
 	
 	/**
 	 * Category of transaction
 	 */
+	@XmlElement
 	private TransactionCategory transactionCategory;
 	
 	/**
 	 * A specific identifier
 	 */
+	@XmlElement
 	private String identifier;
 	
 	/**
 	 * record type
 	 */
+	@XmlElement
 	private RecordType type;
 	
 	/**
 	 * Currency
 	 */
+	@XmlElement
 	private CurrencyType currency;
 
 	public Date getTime() {

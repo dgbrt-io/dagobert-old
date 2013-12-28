@@ -1,5 +1,8 @@
 package com.dagobert_engine.portfolio.model;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Permission given by api key of MtGox
  * 
@@ -9,9 +12,11 @@ package com.dagobert_engine.portfolio.model;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
+@XmlRootElement
 public enum MtGoxPermission {
 	DEPOSIT("deposit"), GET_INFO("get_info"), MERCHANT("merchant"), TRADE("trade"), WITHDRAW("withdraw");
 	
+	@XmlElement
 	private String strValue;
 	
 	private MtGoxPermission(String str) {
