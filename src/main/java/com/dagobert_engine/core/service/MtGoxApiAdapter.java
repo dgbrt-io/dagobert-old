@@ -380,7 +380,7 @@ public class MtGoxApiAdapter implements Serializable {
 		status.setDefaultCurrency(configService.getDefaultCurrency());
 		status.setDefaultPeriodLength(Integer.parseInt(configService.getProperty(KeyName.DEFAULT_PERIOD_LENGTH)));
 		status.setLag(getLag());
-		status.setRunning(updateService.isAlive());
+		status.setRunning(updateService.isRunning());
 		status.setTime(new Date());
 		return status;
 	}

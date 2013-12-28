@@ -1,4 +1,4 @@
-@XmlSchema(elementFormDefault = XmlNsForm.QUALIFIED, namespace = "bitcoin.statistics.model", xmlns = @XmlNs(prefix = "", namespaceURI = "bitcoin.statistics.model"))
+@XmlSchema(elementFormDefault = XmlNsForm.QUALIFIED, namespace = "com.dagobert_engine.statistics.model", xmlns = @XmlNs(prefix = "", namespaceURI = "bitcoin.statistics.model"))
 @XmlAccessorType(FIELD)
 package com.dagobert_engine.statistics.model;
 

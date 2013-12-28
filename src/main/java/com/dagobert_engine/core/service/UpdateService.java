@@ -57,12 +57,12 @@ public class UpdateService extends Thread {
 	}
 	
 	public void begin() {
-		running = true;
 		start();
 	}
 	
 	@Override
 	public void run() {
+		running = true;
 		
 //		Context c = new InitialContext();
 //		UserTransaction trans = (UserTransaction) c.lookup("java:jboss/UserTransaction");
@@ -109,6 +109,11 @@ public class UpdateService extends Thread {
 	//			trans.rollback();
 				exc.printStackTrace();
 			}
+			running = false;
 		}
+	}
+
+	public boolean isRunning() {
+		return running;
 	}
 }
