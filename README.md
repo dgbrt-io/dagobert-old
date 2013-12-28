@@ -73,10 +73,13 @@ Getting started
 -----------------
 
 Requirements (minimum)
+
  * Maven 3
  * Any Java EE 6 application server. I recommend JBoss AS 7.2.0 (or EAP 6.1.0)
  
+ 
  Requirements (recommended)
+ 
  * Eclipse Kepler for Java EE
  * Eclipse Plugin "JBoss Tools"
  * JBoss EAP 6.1.0
@@ -87,4 +90,3 @@ Requirements (minimum)
  3. To create a custom strategy, implement com.dagobert_engine.trading.service.Strategy with the CDI annotation @Alternative and add it as alternative to beans.xml
  4. Build the app with maven and deploy it to your server.
 
->>>>>>> branch 'master' of https://github.com/MitchK/dagobert.git
