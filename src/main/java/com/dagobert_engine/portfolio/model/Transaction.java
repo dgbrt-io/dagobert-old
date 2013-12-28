@@ -3,6 +3,7 @@ package com.dagobert_engine.portfolio.model;
 import java.util.Date;
 
 import com.dagobert_engine.core.model.CurrencyData;
+import com.dagobert_engine.core.model.CurrencyType;
 
 /**
  * History record of the portfolio's history
@@ -13,7 +14,7 @@ import com.dagobert_engine.core.model.CurrencyData;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
-public class Transaction {
+public class Transaction implements Comparable<Transaction> {
 	
 	/**
 	 * Category of transaction
@@ -87,6 +88,12 @@ public class Transaction {
 	 */
 	private Date time;
 	
+
+	/**
+	 * The rate
+	 */
+	private CurrencyData rate;
+	
 	/**
 	 * The amount transferred
 	 */
@@ -121,6 +128,11 @@ public class Transaction {
 	 * record type
 	 */
 	private RecordType type;
+	
+	/**
+	 * Currency
+	 */
+	private CurrencyType currency;
 
 	public Date getTime() {
 		return time;
@@ -185,15 +197,43 @@ public class Transaction {
 	public void setTransactionCategory(TransactionCategory transactionCategory) {
 		this.transactionCategory = transactionCategory;
 	}
+	
+
+	@Override
+	public int compareTo(Transaction o) {
+		if (this.getTime().equals(o.getTime())) return 0;
+		
+		if (this.time.before(o.time)) return -1;
+		else
+			return 1;
+	}
+
+	public CurrencyData getRate() {
+		return rate;
+	}
+
+	public void setRate(CurrencyData rate) {
+		this.rate = rate;
+	}
+
+	public CurrencyType getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(CurrencyType currency) {
+		this.currency = currency;
+	}
 
 	@Override
 	public String toString() {
-		return "Transaction [time=" + time + ", value=" + value + ", balance="
-				+ balance + ", info=" + info + ", transactionUuid="
-				+ transactionUuid + ", transactionCategory="
-				+ transactionCategory + ", identifier=" + identifier
-				+ ", type=" + type + "]";
+		return "Transaction [time=" + time + ", rate=" + rate + ", value="
+				+ value + ", balance=" + balance + ", info=" + info
+				+ ", transactionUuid=" + transactionUuid
+				+ ", transactionCategory=" + transactionCategory
+				+ ", identifier=" + identifier + ", type=" + type
+				+ ", currency=" + currency + "]";
 	}
+	
 	
 	
 }

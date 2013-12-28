@@ -266,6 +266,15 @@ public class MtGoxTradeService implements Serializable {
 			throw new IllegalArgumentException(
 					"Currency must be set to buy the given asset");
 		}
+		
+		if (orderGiven.getPrice() == null) {
+			throw new IllegalArgumentException("Price must be set to place order.");
+		}
+		
+
+		if (orderGiven.getCurrency() == null) {
+			throw new IllegalArgumentException("Currency for order must be set to place order.");
+		}
 
 		if (orderGiven.getAmount().getValue() <  Double.parseDouble(configService.getProperty(KeyName.MIN_TRADE_AMOUNT)) ) {
 			throw new IllegalArgumentException(
@@ -278,10 +287,20 @@ public class MtGoxTradeService implements Serializable {
 		}
 		
 		orderGiven.setDate(new Date());
-		orderGiven.setStatus(StatusType.EXECUTING);
 
-		long amount_int = (int) (orderGiven.getAmount().getValue() * ((double) adapter.getDivisionFactors().get(CurrencyType.BTC)));
-		long price_int = (int) (orderGiven.getPrice().getValue() * ((double) adapter.getDivisionFactors().get(orderGiven.getCurrency().name())));
+		long amount_int = (long) (orderGiven
+				.getAmount()
+				.getValue()
+				* (double) adapter
+				.getDivisionFactors()
+				.get(CurrencyType.BTC));
+		long price_int = (long) (orderGiven
+				.getPrice()
+				.getValue()
+				* (double) adapter
+				.getDivisionFactors()
+				.get(orderGiven
+						.getCurrency()));
 
 		String result = "";
 		String orderId = "";

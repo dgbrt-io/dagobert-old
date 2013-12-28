@@ -28,7 +28,7 @@ import com.dagobert_engine.trading.service.MtGoxTradeService;
 @Singleton
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 @Startup
-public class DucksHeartBeat extends Thread {
+public class UpdateService extends Thread {
 	
 	@Inject
 	private MtGoxStatisticsService ratesService;
@@ -44,7 +44,7 @@ public class DucksHeartBeat extends Thread {
 	
 	private boolean running = true;
 
-	public DucksHeartBeat() {
+	public UpdateService() {
 	}
 	
 	@PostConstruct
@@ -108,7 +108,7 @@ public class DucksHeartBeat extends Thread {
 			}
 			catch (Exception exc) {
 	//			trans.rollback();
-				logger.severe(exc.getClass().getName() + ", Message: " + exc.getMessage());
+				exc.printStackTrace();
 			}
 		}
 	}

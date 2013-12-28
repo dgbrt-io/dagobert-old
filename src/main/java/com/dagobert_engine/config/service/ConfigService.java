@@ -85,7 +85,13 @@ public class ConfigService implements Serializable {
 		if (properties == null)
 			setup();
 
-		return properties.get(key.name());
+		
+		String str = properties.get(key.name());
+		
+		if (str == null)
+			logger.warning("Key " + key.name() + " is not set");
+		
+		return str;
 	}
 
 	/**
