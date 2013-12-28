@@ -47,7 +47,7 @@ Not implemented yet
  * Strategy editor
  * Benchmarking
  * OSGI support
- * Dynamic HTML5/JS UI, for smartphone, tablet and desktop
+ * <s>Dynamic HTML5/JS UI, for smartphone, tablet and desktop</s> Won't be implemented with this project. 
  * Chart generation
  * JSON support for REST
  * SOAP support (XML only)
@@ -92,7 +92,7 @@ Getting started
 -----------------
 
  1. Clone with git and import it into the IDE of your choice.
- 2. Go to src/main/resources/com/dagobert_engine and create a file named settings.properties (you can use default.properties) with your API keys. Please be aware that your keys are permitted for all the rights. 
+ 2. Go to src/main/resources/com/dagobert_engine and create a file named settings.properties (you can use example.properties) with your API keys. Please be aware that your keys are permitted for all the rights. 
  3. To create a custom strategy, implement com.dagobert_engine.trading.service.Strategy with the CDI annotation @Alternative and add it as alternative to beans.xml
  4. Build the app with maven and deploy it to your server.
 
