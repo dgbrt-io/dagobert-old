@@ -65,25 +65,31 @@ I'm using JBoss Enterprise Application Platform 6.1.0 to run this app.
 
 Special thanks
 --------------
-Special thanks to adv0r, whose project gave me a great start with the MtGox API.
+Adv0r, whose project gave me a great start with the MtGox API.
 https://github.com/adv0r/mtgox-api-v2-java
 
+Nitrous, because of the great API overview
+https://bitbucket.org/nitrous/mtgox-api/overview
 
-Getting started
------------------
+
 
 Requirements (minimum)
+----------------------
 
  * Maven 3
  * Any Java EE 6 application server. I recommend JBoss AS 7.2.0 (or EAP 6.1.0)
  
  
- Requirements (recommended)
+Requirements (recommended)
+--------------------------
  
  * Eclipse Kepler for Java EE
  * Eclipse Plugin "JBoss Tools"
  * JBoss EAP 6.1.0
  
+ 
+Getting started
+-----------------
 
  1. Clone with git and import it into the IDE of your choice.
  2. Go to src/main/resources/com/dagobert_engine and create a file named settings.properties (you can use default.properties) with your API keys. Please be aware that your keys are permitted for all the rights. 
