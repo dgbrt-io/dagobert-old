@@ -79,7 +79,7 @@ Requirements (minimum)
 ----------------------
 
  * Maven 3
- * Any Java EE 6 application server. I recommend JBoss AS 7.2.0 (or EAP 6.1.0)
+ * Any Java EE 6 application server. I recommend JBoss AS 7.2.0 (or EAP 6.1.0 Final) http://www.jboss.org/jbossas/downloads/
  
  
 Requirements (recommended)
@@ -87,7 +87,7 @@ Requirements (recommended)
  
  * Eclipse Kepler for Java EE
  * Eclipse Plugin "JBoss Tools"
- * JBoss EAP 6.1.0
+ * JBoss EAP 6.1.0 Final http://www.jboss.org/jbossas/downloads/
  
  
 Building
@@ -96,6 +96,14 @@ Building
     git clone https://github.com/MitchK/dagobert.git
     cd dagobert
     mvn clean package
+    
+Configuring
+---------------------
+
+In order to run the app, you have to do the following steps:
+ 1. Edit src/main/resources/com/dagobert_engine/example.properties and save it as settings.properties in the same directory
+ 2. Edit src/main/webapp/WEB-INF/beans.xml. In here, you can add your personal trading implementation (It must implement com.dagobert_engine.trading.service.Strategy and has to be annotated with CDI's @Alternative). If you just want to test Dagobert without having any Strategy implementation yet, just comment out my CustomStrategy. It's not the best solution, I will make a better solution for the future.
+
     
 Deploying to JBoss AS
 ---------------------

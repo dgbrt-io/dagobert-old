@@ -16,7 +16,9 @@ import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
 
 /**
- * Main loop
+ * This is the main loop
+ * 
+ * TODO: No EJB, only CDI. Transaction start via Seam Transactions
  * 
  * @author Michael Kunzmann (mail@michaelkunzmann.com)
  * @version 0.1-ALPHA
@@ -64,6 +66,8 @@ public class UpdateService extends Thread {
 	public void run() {
 		running = true;
 		
+		
+		// Transaction is started by EJB
 //		Context c = new InitialContext();
 //		UserTransaction trans = (UserTransaction) c.lookup("java:jboss/UserTransaction");
 //		
@@ -89,14 +93,10 @@ public class UpdateService extends Thread {
 			try {
 				
 				// Refresh period data
-				logger.log(Level.INFO, "-------- Refreshing rates and periods --------");
 				ratesService.refreshPeriods();
-				logger.log(Level.INFO, "-------------------- DONE --------------------");
 	
-				// Refresh trade data
-				logger.log(Level.INFO, "------------------- Trading ------------------");
+				// Do trading
 				traderService.trade();
-				logger.log(Level.INFO, "-------------------- DONE --------------------");
 				
 				
 	//			trans.commit();

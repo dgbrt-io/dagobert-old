@@ -16,6 +16,7 @@ import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.util.KeyName;
 
 /**
+ * Used to read settings file
  * 
  * @author Michael Kunzmann (mail@michaelkunzmann.com)
  * @version 0.1-ALPHA
