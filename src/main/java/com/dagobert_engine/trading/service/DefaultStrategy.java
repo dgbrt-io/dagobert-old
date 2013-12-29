@@ -6,11 +6,14 @@ import java.util.logging.Logger;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.trading.model.Order;
 
 /**
- * Default, useless strategy
+ * Default, useless strategy.
+ * You have to implement your own.
  * 
  * @author Michael Kunzmann (mail@michaelkunzmann.com)
  * @version 0.1-ALPHA
@@ -25,38 +28,33 @@ public class DefaultStrategy implements Strategy {
 
 	@Override
 	public Order createOrder() {
-		logger.log(Level.WARNING, "No Strategy set");
+		logger.log(Level.WARNING, "No Strategy set. Please implement " + Strategy.class.getName() + ", annotate it with @Alternative and add your implementation to beans.xml as alternative.");
 		return null;
 	}
 
 	@Override
 	public boolean isBuying() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public boolean isSelling() {
-		// TODO Auto-generated method stub
-		return false;
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public CurrencyData getLastBuyPrice() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public CurrencyData getLastSellPrice() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException();
 	}
 
 	@Override
 	public CurrencyData getLastEarnings() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedException();
 	}
 
 }

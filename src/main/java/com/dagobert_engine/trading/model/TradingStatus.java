@@ -7,6 +7,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.dagobert_engine.core.model.CurrencyData;
 
+/**
+ * Trading status
+ * 
+ * @author Michael Kunzmann (mail@michaelkunzmann.com)
+ * @version 0.1-ALPHA
+ *
+ * License http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
 @XmlRootElement
 public class TradingStatus {
 	@XmlAttribute

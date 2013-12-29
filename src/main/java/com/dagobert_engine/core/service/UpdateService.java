@@ -50,8 +50,38 @@ public class UpdateService extends Thread {
 	
 	@PostConstruct
 	public void postConstruct() {
+		
+		
+		logger.info("###################################################");
+		logger.info("###################################################");
+		logger.info("###########                            ############");
+		logger.info("###########        -----------         ############");
+		logger.info("###########        \\         /         ############");
+		logger.info("###########         )       (          ############");
+		logger.info("###########       =============        ############");
+		logger.info("###########      /  /  \\ /  \\ \\        ############");
+		logger.info("###########      |  |()| |()|  |       ############");
+		logger.info("###########      |  \\__/ \\__/  |       ############");
+		logger.info("###########      \\     ..      /       ############");
+		logger.info("###########  ####(=============)####   ############");
+		logger.info("###########   ####            ####     ############");
+		logger.info("###########                            ############");
+		logger.info("###########                            ############");
+		logger.info("###########   D  A  G  O  B  E  R  T   ############");
+		logger.info("###########       Trading Engine       ############");
+		logger.info("###########                            ############");
+		logger.info("###########                            ############");
+		logger.info("###########         COPYRIGHT          ############");
+		logger.info("###########  ----------------------    ############");
+		logger.info("###########   (c) Michael Kunzmann     ############");
+		logger.info("###########  mail@michaelkunzmann.com  ############");
+		logger.info("###########                            ############");
+		logger.info("###########     License: APACHE 2.0    ############");
+		logger.info("###########                            ############");
+		logger.info("###################################################");
+		logger.info("###################################################");
+		
 		begin();
-		logger.log(Level.INFO, "UpdateTimer initialized.");
 	}
 	
 	public void cancel() {

@@ -365,8 +365,6 @@ public class MtGoxPortfolioService implements Serializable {
 
 				wallets.put(type, wallet);
 			} catch (Exception exc) {
-				logger.log(Level.WARNING, "No wallet for currency" + type
-						+ ". Original msg: " + exc.getMessage());
 			}
 
 		}

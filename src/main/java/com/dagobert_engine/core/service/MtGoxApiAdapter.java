@@ -268,7 +268,6 @@ public class MtGoxApiAdapter implements Serializable {
 	 * @return
 	 */
 	public String query(String path, HashMap<String, String> args) {
-		logger.info("Querying " + path + "...");
 		
 		if (keys == null) {
 			throw new ApiKeysNotSetException("Api keys are not set. Please set them up in <classpath>/bitcoin/core/settings.properties");
@@ -316,14 +315,13 @@ public class MtGoxApiAdapter implements Serializable {
 			
 			// Any error?
 			int code = connection.getResponseCode();
-			logger.log(Level.INFO, "HTTP answer: " + code);
 			if (code >= 400) {
 				// get error stream
 				br = new BufferedReader(new InputStreamReader(
 						(connection.getErrorStream())));
 				
 				answer = toString(br);
-				logger.severe("HTTP Error: " + code + ", answer: " + answer);
+				logger.severe("HTTP Error on queryin " + path + ": " + code + ", answer: " + answer);
 				throw new MtGoxConnectionError(code, answer);
 				
 			} else {

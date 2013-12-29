@@ -50,10 +50,6 @@ public class MtGoxTradeService implements Serializable {
 	public enum MtGoxStatus {
 		RUNNING, NOT_RUNNING;
 	}
-
-	public enum ResultType {
-		SUCCESS, FAILURE
-	}
 	
 
 	public enum OrderAction {
@@ -157,7 +153,12 @@ public class MtGoxTradeService implements Serializable {
 		String url = MtGoxQueryUtil.create(curr, API_MONEY_ORDER_QUOTE);
 		
 		
-		String resultJSON = adapter.query(url, QueryArgBuilder.create().add("type", type.name().toLowerCase()).add("amount", "" + (int) amount * adapter.getDivisionFactors().get(curr)).build());
+		String resultJSON = adapter.query(url, 
+				QueryArgBuilder
+					.create()
+						.add("type", type.name().toLowerCase())
+							.add("amount", "" + (int) amount * adapter.getDivisionFactors().get(curr))
+								.build());
 		
 		try {
 			JSONObject root = (JSONObject) parser.parse(resultJSON);

@@ -6,8 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.math.MathException;
@@ -36,8 +35,7 @@ import com.dagobert_engine.statistics.model.Period.PropabilityType;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
-@Singleton
-@Startup
+@ApplicationScoped
 public class MtGoxStatisticsService implements Serializable {
 
 	public enum StatisticsServiceStatus {
@@ -71,7 +69,7 @@ public class MtGoxStatisticsService implements Serializable {
 	private final Object lock = new Object();
 	
 
-	private static final String getTickerPath(CurrencyType cur, boolean fast) {
+	private static String getTickerPath(CurrencyType cur, boolean fast) {
 
 		if (cur.equals(CurrencyType.BTC)) {
 			throw new MtGoxException(cur + " is no reference currency. Please select any other currency");

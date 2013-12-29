@@ -3,6 +3,7 @@ package com.dagobert_engine.trading.model;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.dagobert_engine.core.model.CurrencyData;
@@ -21,22 +22,6 @@ import com.dagobert_engine.core.model.CurrencyType;
 @XmlRootElement
 public class Order {
 	
-	// Sample JSON
-	//{
-	//  "oid": "abc123-def456-..",
-	//  "currency": "USD",
-	//  "item": "BTC",
-	//  "type": "bid",
-	//  "amount":           **Currency Object**,
-	//  "effective_amount": **Currency Object**,
-	//  "invalid_amount":   **Currency Object**,
-	//  "price":            **Currency Object**,
-	//  "status": "pending",
-	//  "date": 1365517594,
-	//  "priority": "1365517594817935",
-	//  "actions": []
-	//}
-		
 	public enum StatusType {
 		 PENDING, EXECUTING, POST_PENDING, OPEN, STOP, INVALID; 
 	}
@@ -51,14 +36,32 @@ public class Order {
 	
 	@XmlAttribute
 	private Date date;
+	
+	@XmlElement
 	private CurrencyType currency;
+	
+	@XmlElement
 	private CurrencyType item;
+	
+	@XmlElement
 	private OrderType type;
+	
+	@XmlElement
 	private CurrencyData amount;
+	
+	@XmlElement
 	private CurrencyData effectiveAmount;
+	
+	@XmlElement
 	private CurrencyData invalidAmount;
+	
+	@XmlElement
 	private CurrencyData price;
+	
+	@XmlElement
 	private StatusType status;
+
+	@XmlElement
 	private Long priority;
 	public String getOrderId() {
 		return orderId;
