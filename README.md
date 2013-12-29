@@ -12,8 +12,8 @@
                                - - - - - - - - - - - - - - - - - - - - - - 
                              	   
                              	    ! ! ! ! ! W A R N I N G ! ! ! ! !
-                             	    Dagobert is STILL under Development. 
-                             	  Features might not have been tested yet.
+                             	    Dagobert has no stable release yet!
+                              Some features might not have been tested yet.
                              	          Usage at your OWN risk.
                              	          
                                - - - - - - - - - - - - - - - - - - - - - - 
@@ -24,7 +24,7 @@ Donations can be sent to 1BvBCN5dcUXbC4Vp7v5fPXg8LPNChcheYh
 								  
 About Dagobert			  
 =========================
-Dagobert is a algorithmic trading engine for the J2EE platform. It comes without decision-making algorithms, because I don't want to publish mine, as you might see. 
+Dagobert is a algorithmic trading engine for the J2EE platform. It comes without any decision-making algorithms, because I don't want to publish mine, as you might see. 
 It is currently only implemented for BTC and the MtGox API V2 (https://en.bitcoin.it/wiki/MtGox/API/HTTP/v2), but there are also others planned.
 
 This project should be an evolutionary long-termin project.
@@ -40,23 +40,22 @@ Implemented
 -----------
  * Reading personal portfolio data (balances, wallets, order history, ...)
  * Polling MtGox every five seconds for current prices
- * Categorizing the rates into two periods of variable length. (current period and last period)
+ * Categorizing the rates into two periods of variable length, which can be setup in the settings.properties file. (current period and last period)
  * Calculate basic empiric data for each period: Avg, Min, Max, Standard Deviation, Quantiles
  * Strategy interface: You can implement your own trading strategy
  * HTTP REST interface: Currently XML supported, JSON is following.
  
 Not implemented yet
 ----------------------------------------------------------
- * Strategy editor
- * Benchmarking
+ * Strategy editor 
+ * Benchmarking (against various markets)
  * OSGI support
  * Chart generation
  * JSON support for REST
  * SOAP support (XML only)
- * Blockchain analysis
- * More assets like shares, derivatives, bonds and currencies.
- * Universal interface for 3rd party API connectors to other trading platforms, not just BTC platforms
- * JPA support: I recently was using Hibernate before, but deleted it because the current architecure does not need JPA yet.
+ * Block chain analysis
+ * Universal interface for 3rd party API connectors to other trading platforms
+ * JPA support: I recently was using Hibernate before, but deleted it because the current architecture does not need JPA yet.
 
 And much more...
 
