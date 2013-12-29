@@ -109,8 +109,8 @@ public class UpdateService extends Thread {
 	//			trans.rollback();
 				exc.printStackTrace();
 			}
-			running = false;
 		}
+		running = false;
 	}
 
 	public boolean isRunning() {
