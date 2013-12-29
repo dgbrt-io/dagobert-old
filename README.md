@@ -27,7 +27,7 @@ About Dagobert
 Dagobert is a algorithmic trading engine for the J2EE platform. It comes without any decision-making algorithms, because I don't want to publish mine, as you might see. 
 It is currently only implemented for BTC and the MtGox API V2 (https://en.bitcoin.it/wiki/MtGox/API/HTTP/v2), but there are also others planned.
 
-This project should be an evolutionary long-termin project.
+This project is part of my thesis for my Bachelor in Business Information Systems at the University of Applied Sciences, Karlsruhe.
 
 Why "Dagobert"?
 =========================
