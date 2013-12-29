@@ -2,6 +2,7 @@ package com.dagobert_engine.trading.service;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.trading.model.Order;
 
 /**
@@ -18,5 +19,11 @@ import com.dagobert_engine.trading.model.Order;
 public interface Strategy {
 	
 	public Order createOrder();
+	public boolean isBuying();
+	public boolean isSelling();
+	
+	public CurrencyData getLastBuyPrice();
+	public CurrencyData getLastSellPrice();
+	public CurrencyData getLastEarnings();
 
 }

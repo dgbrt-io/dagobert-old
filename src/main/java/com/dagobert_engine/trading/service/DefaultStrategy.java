@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
+import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.trading.model.Order;
 
 /**
@@ -25,6 +26,36 @@ public class DefaultStrategy implements Strategy {
 	@Override
 	public Order createOrder() {
 		logger.log(Level.WARNING, "No Strategy set");
+		return null;
+	}
+
+	@Override
+	public boolean isBuying() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isSelling() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public CurrencyData getLastBuyPrice() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CurrencyData getLastSellPrice() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CurrencyData getLastEarnings() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

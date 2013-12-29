@@ -12,6 +12,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import com.dagobert_engine.core.model.AdvancedCurrencyStatistics;
+import com.dagobert_engine.core.model.CurrencyStatistics;
+import com.dagobert_engine.core.service.ConfigService;
 import com.dagobert_engine.statistics.model.Period;
 import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 
@@ -26,19 +29,36 @@ import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
  */
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-@Path(value = "/" + Period.PERIODS)
-@Produces("text/xml")
-@Consumes("text/xml")
+@Path(value = "/statistics")
+@Produces({"application/xml", "application/json"})
+@Consumes({"application/xml", "application/json"})
 public class StatisticsRESTService {
+	
+	@Inject
+	private ConfigService config;
 	
 	@Inject
 	private MtGoxStatisticsService ratesService;
 
 	@GET
+	@Path("periods")
 	public List<Period> getPeriods() {
 		
 		Period lastPeriod = ratesService.getLastPeriod();
 		Period currentPeriod = ratesService.getCurrentPeriod();
 		return Arrays.asList(currentPeriod, lastPeriod);
+	}
+	
+	@GET
+	public CurrencyStatistics getStatistics() {
+		
+		return ratesService.getStatistics(config.getDefaultCurrency());
+	}
+	
+	@GET
+	@Path("advanced")
+	public AdvancedCurrencyStatistics getAdvancedStatistics() {
+		
+		return ratesService.getAdvancedStatistics(config.getDefaultCurrency());
 	}
 }

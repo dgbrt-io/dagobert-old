@@ -26,6 +26,7 @@ import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.core.util.QueryArgBuilder;
 import com.dagobert_engine.trading.model.Order;
+import com.dagobert_engine.trading.model.TradingStatus;
 import com.dagobert_engine.trading.model.Order.StatusType;
 
 /**
@@ -354,6 +355,28 @@ public class MtGoxTradeService implements Serializable {
 		}
 
 		return orderGiven;
+	}
+
+	public TradingStatus getStatus() {
+		TradingStatus status = new TradingStatus();
+		status.setBuying(strategy.isBuying());
+		status.setSelling(strategy.isSelling());
+		
+		CurrencyData lastBuyPrice = strategy.getLastBuyPrice();
+		if (lastBuyPrice.getValue() != 0.0)
+			status.setLastBuyPrice(lastBuyPrice);
+		
+
+		CurrencyData lastSellPrice = strategy.getLastSellPrice();
+		if (lastSellPrice.getValue() != 0.0)
+			status.setLastSellPrice(lastSellPrice);
+		
+		if (status.isBuying()) {
+			status.setLastEarnings(strategy.getLastEarnings());
+		}
+		
+		status.setTime(new Date());
+		return status;
 	}
 
 }
