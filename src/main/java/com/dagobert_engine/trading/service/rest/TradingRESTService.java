@@ -31,6 +31,7 @@ public class TradingRESTService {
 	
 	@Inject
 	private MtGoxTradeService trading;
+	
 	@GET
 	public TradingStatus getStatus() {
 		return trading.getStatus();
