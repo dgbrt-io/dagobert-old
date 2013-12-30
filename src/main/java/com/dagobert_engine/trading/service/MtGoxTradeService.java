@@ -179,7 +179,6 @@ public class MtGoxTradeService implements Serializable {
 	}
 	
 	public List<Order> getOpenOrders() {
-		logger.log(Level.INFO, "Getting open orders...");
 		
 		ArrayList<Order> orders = new ArrayList<Order>();
 		
@@ -235,8 +234,6 @@ public class MtGoxTradeService implements Serializable {
 	}
 
 	public void trade() {
-		
-		logger.log(Level.INFO, "Using " + strategy.getClass().getName() + " implementation...");
 
 		Order orderGiven = strategy.createOrder();
 		
