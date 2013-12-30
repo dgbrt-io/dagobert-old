@@ -1,3 +1,23 @@
+							###################################################
+							###################################################
+							###########                            ############
+							###########        -----------         ############
+							###########        \         /         ############
+							###########         )       (          ############
+							###########       =============        ############
+							###########      /  /  \ /  \ \        ############
+							###########      |  |()| |()|  |       ############
+							###########      |  \__/ \__/  |       ############
+							###########      \     ..      /       ############
+							###########  ####(=============)####   ############
+							###########   ####            ####     ############
+							###########                            ############
+							###########                            ############
+							###########   D  A  G  O  B  E  R  T   ############
+							###########       Trading Engine       ############
+							###########                            ############
+							###################################################
+							###################################################
 
 
                                    DAGOBERT TRADING ENGINE 0.1-ALPHA
@@ -20,6 +40,12 @@
 								  
 Donations
 =========
+If you are trying/using Dagobert, please donate to keep this project alive and supported. 
+I don't expect to get enough donations buy me a new laptop from donations. 
+I expect to get some positive feedback about the work and the usage.
+
+You don't have to spent much, every small amount will make me smile :) I don't do it for the money. If I would, I would not make it open.
+
 Donations can be sent to 1BvBCN5dcUXbC4Vp7v5fPXg8LPNChcheYh
 								  
 About Dagobert			  
@@ -27,7 +53,7 @@ About Dagobert
 Dagobert is a algorithmic trading engine for the J2EE platform. It comes without any decision-making algorithms, because I don't want to publish mine, as you might see. 
 It is currently only implemented for BTC and the MtGox API V2 (https://en.bitcoin.it/wiki/MtGox/API/HTTP/v2), but there are also others planned.
 
-This project is part of my thesis for my Bachelor in Business Information Systems at the University of Applied Sciences, Karlsruhe.
+This project is part of my future thesis for my Bachelor in Business Information Systems at the University of Applied Sciences, Karlsruhe.
 
 Why "Dagobert"?
 =========================
