@@ -51,7 +51,9 @@
 		<!-- other plugin versions -->
 		<version.surefire.plugin>2.10</version.surefire.plugin>
 		<version.war.plugin>2.1.1</version.war.plugin>
-
+		
+		<!-- Seam 3 -->
+		<seam-bom.version>3.1.0.Final</seam-bom.version>
 		<!-- maven-compiler-plugin -->
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -119,7 +121,15 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-
+			
+			<!-- Seam 3 -->
+			<dependency>
+				<groupId>org.jboss.seam</groupId>
+				<artifactId>seam-bom</artifactId>
+				<version>${seam-bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -262,7 +272,33 @@
 			<version>1.9.9</version>
 			<scope>provided</scope>
 		</dependency>
-
+		
+		<!-- Seam 3 -->
+		<dependency>
+			<groupId>org.jboss.seam.persistence</groupId>
+			<artifactId>seam-persistence</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.seam.transaction</groupId>
+			<artifactId>seam-transaction</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.seam.faces</groupId>
+			<artifactId>seam-faces</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.seam.security</groupId>
+			<artifactId>seam-security</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jboss.seam.international</groupId>
+			<artifactId>seam-international</artifactId>
+		</dependency>
+		
 		<!-- JTA -->
 		<dependency>
 			<groupId>javax.transaction</groupId>
