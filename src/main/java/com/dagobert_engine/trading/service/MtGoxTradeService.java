@@ -369,9 +369,6 @@ public class MtGoxTradeService implements Serializable {
 		if (lastSellPrice.getValue() != 0.0)
 			status.setLastSellPrice(lastSellPrice);
 		
-		if (status.isBuying()) {
-			status.setLastEarnings(strategy.getLastEarnings());
-		}
 		
 		status.setTime(new Date());
 		return status;

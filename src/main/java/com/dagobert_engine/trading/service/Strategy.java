@@ -24,6 +24,5 @@ public interface Strategy {
 	
 	public CurrencyData getLastBuyPrice();
 	public CurrencyData getLastSellPrice();
-	public CurrencyData getLastEarnings();
 
 }

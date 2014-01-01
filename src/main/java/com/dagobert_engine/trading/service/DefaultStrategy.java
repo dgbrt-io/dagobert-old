@@ -52,9 +52,5 @@ public class DefaultStrategy implements Strategy {
 		throw new NotImplementedException();
 	}
 
-	@Override
-	public CurrencyData getLastEarnings() {
-		throw new NotImplementedException();
-	}
 
 }
