@@ -18,9 +18,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
-import com.dagobert_engine.core.service.ConfigService;
 import com.dagobert_engine.portfolio.model.MtGoxPermission;
 import com.dagobert_engine.portfolio.model.Transaction;
 import com.dagobert_engine.portfolio.model.Wallet;
@@ -34,7 +34,7 @@ public class PortfolioTest extends AbstractTest {
 	private MtGoxPortfolioService portfolio;
 
 	@Inject
-	private ConfigService config;
+	private Configuration config;
 
 	@Override
 	public void before() throws NamingException, SystemException,

@@ -14,8 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.dagobert_engine.core.model.AdvancedCurrencyStatistics;
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyStatistics;
-import com.dagobert_engine.core.service.ConfigService;
 import com.dagobert_engine.statistics.model.Period;
 import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 
@@ -36,7 +36,7 @@ import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 public class StatisticsRESTService {
 	
 	@Inject
-	private ConfigService config;
+	private Configuration config;
 	
 	@Inject
 	private MtGoxStatisticsService ratesService;

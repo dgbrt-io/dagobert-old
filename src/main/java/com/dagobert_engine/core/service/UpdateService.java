@@ -10,7 +10,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
-import com.dagobert_engine.core.util.KeyName;
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
@@ -41,7 +41,7 @@ public class UpdateService extends Thread {
 	private Logger logger;
 	
 	@Inject
-	private ConfigService config;
+	private Configuration config;
 	
 	private boolean running = true;
 
@@ -81,6 +81,21 @@ public class UpdateService extends Thread {
 		logger.info("###################################################");
 		logger.info("###################################################");
 		
+		if (!config.isTradingEnabled()) {
+			logger.warning("    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    ");
+			logger.warning("    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    ");
+		    logger.warning("    !!!!!                                 !!!!!    ");
+			logger.warning("    !!!!!          W A R N I N G          !!!!!    ");
+		    logger.warning("    !!!!!                                 !!!!!    ");
+		    logger.warning("    !!!!!   Trading is disabled. If you   !!!!!    ");
+		    logger.warning("    !!!!!    want to enable it, go to     !!!!!    ");
+		    logger.warning("    !!!!!        src/main/resources       !!!!!    ");
+		    logger.warning("    !!!!!     /META-INF/seam-beans.xml    !!!!!    ");
+		    logger.warning("    !!!!!                                 !!!!!    ");
+			logger.warning("    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    ");
+			logger.warning("    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    ");
+		}
+		
 		begin();
 	}
 	
@@ -108,7 +123,7 @@ public class UpdateService extends Thread {
 		
 		while (running) {
 			try {
-				long timeout = Long.parseLong(config.getProperty(KeyName.UPDATE_TIME));
+				long timeout = config.getUpdateTime();
 				sleep(timeout * 1000L);
 			} catch (NumberFormatException e) {
 				running = false;
@@ -126,7 +141,9 @@ public class UpdateService extends Thread {
 				ratesService.refreshPeriods();
 	
 				// Do trading
-				traderService.trade();
+				if (config.isTradingEnabled()) {
+					traderService.trade();
+				}
 				
 				
 	//			trans.commit();

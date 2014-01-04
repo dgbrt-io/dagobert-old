@@ -24,11 +24,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
-import com.dagobert_engine.core.service.ConfigService;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
-import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.core.util.QueryArgBuilder;
@@ -67,7 +66,7 @@ public class MtGoxPortfolioService implements Serializable {
 	private MtGoxApiAdapter adapter;
 
 	@Inject
-	private ConfigService config;
+	private Configuration config;
 
 	/**
 	 * Parser
@@ -76,8 +75,7 @@ public class MtGoxPortfolioService implements Serializable {
 
 	private JSONObject getData() {
 
-		CurrencyType currency = CurrencyType.valueOf(config
-				.getProperty(KeyName.DEFAULT_CURRENCY));
+		CurrencyType currency = config.getDefaultCurrency();
 
 		String jsonResult = adapter.query(MtGoxQueryUtil.create(currency,
 				API_GET_INFO));

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
+import com.dagobert_engine.core.model.MtGoxConfiguration;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
 import com.dagobert_engine.test.util.AbstractTest;
 
@@ -20,6 +21,9 @@ public class CoreTest extends AbstractTest {
 	
 	@Inject
 	private MtGoxApiAdapter adapter;
+	
+	@Inject
+	private MtGoxConfiguration mtGoxConfig;
 	
 
 
@@ -40,7 +44,7 @@ public class CoreTest extends AbstractTest {
 	@Test
 	public void setupTest() {
 		
-		assertThat(adapter.getDivisionFactors().size(), not(0));
+		assertThat(mtGoxConfig.getDivisionFactors().size(), not(0));
 	}
 	
 	@Test

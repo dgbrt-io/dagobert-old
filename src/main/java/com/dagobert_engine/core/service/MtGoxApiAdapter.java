@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.enterprise.context.ApplicationScoped;
@@ -23,17 +22,16 @@ import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
 import com.dagobert_engine.core.model.DagobertStatus;
-import com.dagobert_engine.core.util.ApiKeys;
+import com.dagobert_engine.core.model.MtGoxConfiguration;
 import com.dagobert_engine.core.util.ApiKeysNotSetException;
-import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
@@ -77,62 +75,19 @@ public class MtGoxApiAdapter implements Serializable {
 	 */
 	@Inject
 	private Logger logger;
-	/**
-	 * Division factors
-	 */
-	private HashMap<CurrencyType, Integer> divisionFactors;
 
-	/**
-	 * MtGox api keys
-	 */
-	private ApiKeys keys = null;
-
-	/**
-	 * Inject ConfigService
-	 */
 	@Inject
-	private ConfigService configService;
+	private Configuration config;
 	
-	/**
-	 * Setup
-	 */
-	@PostConstruct
-	public void setup() {
-		// Read api keys
-
-		String apiKey = configService.getProperty(KeyName.MTGOX_PUBLIC_KEY);
-		String privateKey = configService.getProperty(KeyName.MTGOX_PRIVATE_KEY);
-		
-		if (StringUtils.isNotEmpty(apiKey) && StringUtils.isNotEmpty(privateKey)) {
-			keys = new ApiKeys();
-			keys.setApiKey(apiKey);
-			keys.setPrivateKey(privateKey);
-		}
-		
-		divisionFactors = new HashMap<CurrencyType, Integer>();
-		divisionFactors.put(CurrencyType.BTC, 100000000);
-		divisionFactors.put(CurrencyType.USD, 100000);
-		divisionFactors.put(CurrencyType.GBP, 100000);
-		divisionFactors.put(CurrencyType.EUR, 100000);
-		divisionFactors.put(CurrencyType.JPY, 1000);
-		divisionFactors.put(CurrencyType.AUD, 100000);
-		divisionFactors.put(CurrencyType.CAD, 100000);
-		divisionFactors.put(CurrencyType.CHF, 100000);
-		divisionFactors.put(CurrencyType.CNY, 100000);
-		divisionFactors.put(CurrencyType.DKK, 100000);
-		divisionFactors.put(CurrencyType.HKD, 100000);
-		divisionFactors.put(CurrencyType.PLN, 100000);
-		divisionFactors.put(CurrencyType.RUB, 100000);
-		divisionFactors.put(CurrencyType.SEK, 1000);
-		divisionFactors.put(CurrencyType.SGD, 100000);
-		divisionFactors.put(CurrencyType.THB, 100000);
-	}
+	@Inject
+	private MtGoxConfiguration mtGoxConfig;
+	
 
 	/**
 	 * Get ID key
 	 */
 	public String getIdKey() {
-		CurrencyType curr = CurrencyType.valueOf(configService.getProperty(KeyName.DEFAULT_CURRENCY));
+		CurrencyType curr = config.getDefaultCurrency();
 		
 		String resultJson = query(MtGoxQueryUtil.create(curr, API_ID_KEY));
 		
@@ -256,7 +211,7 @@ public class MtGoxApiAdapter implements Serializable {
 		CurrencyData curr = new CurrencyData();
 		curr.setType(CurrencyType.valueOf((String) obj.get("currency")));
 		double value = 
-				Double.parseDouble((String) obj.get("value_int")) / getDivisionFactors().get(curr.getType());
+				Double.parseDouble((String) obj.get("value_int")) / mtGoxConfig.getDivisionFactors().get(curr.getType());
 		curr.setValue(value);
 		return curr;
 	}
@@ -269,8 +224,11 @@ public class MtGoxApiAdapter implements Serializable {
 	 */
 	public String query(String path, HashMap<String, String> args) {
 		
-		if (keys == null) {
-			throw new ApiKeysNotSetException("Api keys are not set. Please set them up in <classpath>/bitcoin/core/settings.properties");
+		final String publicKey = mtGoxConfig.getMtGoxPublicKey();
+		final String privateKey = mtGoxConfig.getMtGoxPrivateKey();
+		
+		if (publicKey == null || privateKey == null || "".equals(publicKey) || "".equals(privateKey)) {
+			throw new ApiKeysNotSetException("Either public or private key of MtGox are not set. Please set them up in src/main/resources/META-INF/seam-beans.xml");
 		}
 
 		// Create nonce
@@ -286,7 +244,7 @@ public class MtGoxApiAdapter implements Serializable {
 			String hash_data = path + "\0" + post_data; // Should be correct
 
 			// args signature with apache cryptografic tools
-			String signature = signRequest(keys.getPrivateKey(), hash_data);
+			String signature = signRequest(mtGoxConfig.getMtGoxPrivateKey(), hash_data);
 
 			// build URL
 			URL queryUrl = new URL(Constants.API_BASE_URL + path);
@@ -297,7 +255,7 @@ public class MtGoxApiAdapter implements Serializable {
 
 			connection.setRequestProperty(REQ_PROP_USER_AGENT,
 					com.dagobert_engine.core.util.Constants.APP_NAME);
-			connection.setRequestProperty(REQ_PROP_REST_KEY, keys.getApiKey());
+			connection.setRequestProperty(REQ_PROP_REST_KEY, mtGoxConfig.getMtGoxPublicKey());
 			connection.setRequestProperty(REQ_PROP_REST_SIGN,
 					signature.replaceAll("\n", ""));
 
@@ -364,19 +322,10 @@ public class MtGoxApiAdapter implements Serializable {
 		return answer;
 	}
 
-	public void setDivisionFactors(
-			HashMap<CurrencyType, Integer> divisionFactors) {
-		this.divisionFactors = divisionFactors;
-	}
-
-	public HashMap<CurrencyType, Integer> getDivisionFactors() {
-		return divisionFactors;
-	}
-
 	public DagobertStatus getStatus() {
 		DagobertStatus status = new DagobertStatus();
-		status.setDefaultCurrency(configService.getDefaultCurrency());
-		status.setDefaultPeriodLength(Integer.parseInt(configService.getProperty(KeyName.DEFAULT_PERIOD_LENGTH)));
+		status.setDefaultCurrency(config.getDefaultCurrency());
+		status.setDefaultPeriodLength(config.getDefaultPeriodLength());
 		status.setLag(getLag());
 		status.setRunning(updateService.isRunning());
 		status.setTime(new Date());

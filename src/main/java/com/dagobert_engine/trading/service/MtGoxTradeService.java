@@ -17,11 +17,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
-import com.dagobert_engine.core.service.ConfigService;
+import com.dagobert_engine.core.model.MtGoxConfiguration;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
-import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.core.util.MtGoxQueryUtil;
 import com.dagobert_engine.core.util.QueryArgBuilder;
@@ -34,9 +34,9 @@ import com.dagobert_engine.trading.model.Order.StatusType;
  * 
  * @author Michael Kunzmann (mail@michaelkunzmann.com)
  * @version 0.1-ALPHA
- *
- * License http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
+ *          License http://www.apache.org/licenses/LICENSE-2.0
+ * 
  */
 @ApplicationScoped
 public class MtGoxTradeService implements Serializable {
@@ -46,11 +46,9 @@ public class MtGoxTradeService implements Serializable {
 	 */
 	private static final long serialVersionUID = -7420672734666974678L;
 
-
 	public enum MtGoxStatus {
 		RUNNING, NOT_RUNNING;
 	}
-	
 
 	public enum OrderAction {
 		BUY, SELL;
@@ -63,12 +61,15 @@ public class MtGoxTradeService implements Serializable {
 
 	@Inject
 	private MtGoxApiAdapter adapter;
-	
+
 	@Inject
 	private Strategy strategy;
-	
+
 	@Inject
-	private ConfigService configService;
+	private Configuration config;
+
+	@Inject
+	private MtGoxConfiguration mtGoxConfig;
 
 	@Inject
 	private Logger logger;
@@ -81,13 +82,14 @@ public class MtGoxTradeService implements Serializable {
 	public static final String PARAM_TYPE = "type";
 	public static final String PARAM_AMOUNT_INT = "amount_int";
 	public static final String PARAM_PRICE_INT = "price_int";
-	
+
 	private JSONParser parser = new JSONParser();
-	
+
 	public boolean enoughMoneyToBuy(double balance, double currentPrice) {
-		return Double.parseDouble(configService.getProperty(KeyName.MIN_TRADE_AMOUNT)) <= currencyToBtc(balance, currentPrice);
+		return mtGoxConfig.getMinTradeAmount() <= currencyToBtc(balance,
+				currentPrice);
 	}
-	
+
 	/**
 	 * Transforms a json object to a json object
 	 * 
@@ -101,12 +103,12 @@ public class MtGoxTradeService implements Serializable {
 
 		CurrencyData curr = new CurrencyData();
 		curr.setType(CurrencyType.valueOf((String) obj.get("currency")));
-		double value = 
-				Double.parseDouble((String) obj.get("value_int")) / adapter.getDivisionFactors().get(curr.getType());
+		double value = Double.parseDouble((String) obj.get("value_int"))
+				/ mtGoxConfig.getDivisionFactors().get(curr.getType());
 		curr.setValue(value);
 		return curr;
 	}
-	
+
 	/**
 	 * Cancel a trade order
 	 * 
@@ -114,32 +116,34 @@ public class MtGoxTradeService implements Serializable {
 	 * @return
 	 */
 	public boolean cancelOrder(Order order) {
-		
-		String url = MtGoxQueryUtil.create(order.getCurrency(), API_CANCEL_ORDER);
-		
-		String resultJson = adapter.query(url, QueryArgBuilder.create().add("oid", order.getOrderId()).build());
-		
+
+		String url = MtGoxQueryUtil.create(order.getCurrency(),
+				API_CANCEL_ORDER);
+
+		String resultJson = adapter
+				.query(url,
+						QueryArgBuilder.create().add("oid", order.getOrderId())
+								.build());
+
 		JSONObject root;
 		try {
 			root = (JSONObject) parser.parse(resultJson);
 			String result = (String) root.get("result");
-			
+
 			if (!"success".equals(result)) {
 				throw new MtGoxException(result);
 			}
-			
+
 			return true;
 		} catch (ParseException e) {
 			throw new MtGoxException(e);
 		}
 	}
-	
+
 	// TODO MONEY/ORDER/RESULT
 	// TODO MONEY/TRADES/FETCH (only get http method !!!!!)
 	// TODO MONEY/TRADES/CANCELLED (is not implemented by mtgox
-	
-	
-	
+
 	/**
 	 * Get an up-to-date quote for a bid or ask transaction
 	 * 
@@ -148,80 +152,92 @@ public class MtGoxTradeService implements Serializable {
 	 * @param amount
 	 * @return
 	 */
-	public double getQuote(CurrencyType curr, Order.OrderType type, double amount) {
-		
+	public double getQuote(CurrencyType curr, Order.OrderType type,
+			double amount) {
+
 		String url = MtGoxQueryUtil.create(curr, API_MONEY_ORDER_QUOTE);
-		
-		
-		String resultJSON = adapter.query(url, 
+
+		String resultJSON = adapter.query(
+				url,
 				QueryArgBuilder
-					.create()
+						.create()
 						.add("type", type.name().toLowerCase())
-							.add("amount", "" + (int) amount * adapter.getDivisionFactors().get(curr))
-								.build());
-		
+						.add("amount",
+								""
+										+ (int) amount
+										* mtGoxConfig.getDivisionFactors()
+												.get(curr)).build());
+
 		try {
 			JSONObject root = (JSONObject) parser.parse(resultJSON);
-			
+
 			String result = (String) root.get("result");
-			
+
 			if (!"success".equals(result)) {
 				throw new MtGoxException(result);
 			}
-			
+
 			JSONObject data = (JSONObject) root.get("data");
 			String amountStr = (String) data.get("amount");
-			
-			return Double.parseDouble(amountStr) / adapter.getDivisionFactors().get(curr);			
+
+			return Double.parseDouble(amountStr)
+					/ mtGoxConfig.getDivisionFactors().get(curr);
 		} catch (ParseException e) {
 			throw new MtGoxException(e);
 		}
 	}
-	
+
 	public List<Order> getOpenOrders() {
-		
+
 		ArrayList<Order> orders = new ArrayList<Order>();
-		
-		CurrencyType currency = CurrencyType.valueOf(configService.getProperty(KeyName.DEFAULT_CURRENCY));
-		
+
+		CurrencyType currency = config.getDefaultCurrency();
+
 		try {
-			String resultJson = adapter.query(MtGoxQueryUtil.create(currency, API_MONEY_ORDERS));
-			
+			String resultJson = adapter.query(MtGoxQueryUtil.create(currency,
+					API_MONEY_ORDERS));
+
 			JSONObject root = (JSONObject) parser.parse(resultJson);
 			String result = (String) root.get("result");
-			
+
 			if (!"success".equals(result)) {
 				throw new MtGoxException(result);
 			}
-			
+
 			JSONArray data = (JSONArray) root.get("data");
-			
+
 			for (int i = 0; i < data.size(); i++) {
 				JSONObject orderJson = (JSONObject) data.get(i);
-				
+
 				Order order = new Order();
 				order.setOrderId((String) orderJson.get("oid"));
-				order.setItem(CurrencyType.valueOf((String) orderJson.get("item")));
-				order.setType(Order.OrderType.valueOf(((String) orderJson.get("type")).toUpperCase()));
-				order.setAmount(getCurrencyForJsonObj((JSONObject) orderJson.get("amount")));
-				order.setEffectiveAmount(getCurrencyForJsonObj((JSONObject) orderJson.get("effective_amount")));
-				order.setInvalidAmount(getCurrencyForJsonObj((JSONObject) orderJson.get("invalid_amount")));
-				order.setPrice(getCurrencyForJsonObj((JSONObject) orderJson.get("price")));
-				order.setStatus(StatusType.valueOf(((String) orderJson.get("status")).toUpperCase()));
+				order.setItem(CurrencyType.valueOf((String) orderJson
+						.get("item")));
+				order.setType(Order.OrderType.valueOf(((String) orderJson
+						.get("type")).toUpperCase()));
+				order.setAmount(getCurrencyForJsonObj((JSONObject) orderJson
+						.get("amount")));
+				order.setEffectiveAmount(getCurrencyForJsonObj((JSONObject) orderJson
+						.get("effective_amount")));
+				order.setInvalidAmount(getCurrencyForJsonObj((JSONObject) orderJson
+						.get("invalid_amount")));
+				order.setPrice(getCurrencyForJsonObj((JSONObject) orderJson
+						.get("price")));
+				order.setStatus(StatusType.valueOf(((String) orderJson
+						.get("status")).toUpperCase()));
 				order.setDate(new Date((long) orderJson.get("date") * 1000));
-				order.setPriority(Long.parseLong((String) orderJson.get("priority")));
-				
+				order.setPriority(Long.parseLong((String) orderJson
+						.get("priority")));
+
 				orders.add(order);
-				
+
 			}
-		}
-		catch (Exception exc) {
+		} catch (Exception exc) {
 			throw new MtGoxException(exc);
 		}
-		
+
 		return orders;
 	}
-	
 
 	/**
 	 * Am I able to sell?
@@ -230,13 +246,13 @@ public class MtGoxTradeService implements Serializable {
 	 * @return
 	 */
 	public boolean enoughBTCtoSell(double balance) {
-		return Double.parseDouble(configService.getProperty(KeyName.MIN_TRADE_AMOUNT)) <= balance;
+		return mtGoxConfig.getMinTradeAmount() <= balance;
 	}
 
 	public void trade() {
 
 		Order orderGiven = strategy.createOrder();
-		
+
 		if (orderGiven != null) {
 			placeOrder(orderGiven);
 		}
@@ -254,56 +270,47 @@ public class MtGoxTradeService implements Serializable {
 		return currency / price;
 	}
 
-	
 	public Order placeOrder(Order orderGiven) {
 		if (orderGiven == null) {
-			throw new IllegalArgumentException(
-					"order must be given");
+			throw new IllegalArgumentException("order must be given");
 		}
 
 		if (orderGiven.getCurrency() == null) {
 			throw new IllegalArgumentException(
 					"Currency must be set to buy the given asset");
 		}
-		
+
 		if (orderGiven.getPrice() == null) {
-			throw new IllegalArgumentException("Price must be set to place order.");
+			throw new IllegalArgumentException(
+					"Price must be set to place order.");
 		}
-		
 
 		if (orderGiven.getCurrency() == null) {
-			throw new IllegalArgumentException("Currency for order must be set to place order.");
+			throw new IllegalArgumentException(
+					"Currency for order must be set to place order.");
 		}
 
-		if (orderGiven.getAmount().getValue() <  Double.parseDouble(configService.getProperty(KeyName.MIN_TRADE_AMOUNT)) ) {
+		if (orderGiven.getAmount().getValue() < mtGoxConfig.getMinTradeAmount()) {
 			throw new IllegalArgumentException(
 					"Amount must be greater or equal than MINIMUM_BTC_TRADE_SIZE ("
-							+ Double.parseDouble(configService.getProperty(KeyName.MIN_TRADE_AMOUNT)) + ")");
+							+ mtGoxConfig.getMinTradeAmount() + ")");
 		}
 
 		if (orderGiven.getType() == null) {
 			throw new IllegalArgumentException("Type of order must be set");
 		}
-		
+
 		orderGiven.setDate(new Date());
 
-		long amount_int = (long) (orderGiven
-				.getAmount()
-				.getValue()
-				* (double) adapter
-				.getDivisionFactors()
-				.get(CurrencyType.BTC));
-		long price_int = (long) (orderGiven
-				.getPrice()
-				.getValue()
-				* (double) adapter
-				.getDivisionFactors()
-				.get(orderGiven
-						.getCurrency()));
+		long amount_int = (long) (orderGiven.getAmount().getValue() * (double) mtGoxConfig
+				.getDivisionFactors().get(CurrencyType.BTC));
+		long price_int = (long) (orderGiven.getPrice().getValue() * (double) mtGoxConfig
+				.getDivisionFactors().get(orderGiven.getCurrency()));
 
 		String result = "";
 		String orderId = "";
-		String urlPath = MtGoxQueryUtil.create(orderGiven.getCurrency(), API_ADD_ORDER);
+		String urlPath = MtGoxQueryUtil.create(orderGiven.getCurrency(),
+				API_ADD_ORDER);
 		HashMap<String, String> query_args = new HashMap<>();
 		/*
 		 * Params type : {ask (sell) | bid(buy) } amount_int : amount of BTC to
@@ -326,9 +333,11 @@ public class MtGoxTradeService implements Serializable {
 			JSONObject obj2 = (JSONObject) (parser.parse(queryResult));
 			result = (String) obj2.get("result");
 			orderId = (String) obj2.get("data");
-			
+
 			if (orderId == null || orderId.equals("")) {
-				logger.log(Level.INFO, "ERROR no order id was returned from server: " + orderId);
+				logger.log(Level.INFO,
+						"ERROR no order id was returned from server: "
+								+ orderId);
 				return null;
 			}
 
@@ -344,11 +353,12 @@ public class MtGoxTradeService implements Serializable {
 		if (!result.equals("success")) {
 
 			throw new MtGoxException(result);
-			
+
 		} else {
-			logger.log(Level.INFO, "Sucessfully placed order with id " + orderId);
+			logger.log(Level.INFO, "Sucessfully placed order with id "
+					+ orderId);
 			orderGiven.setOrderId(orderId);
-			
+
 			// TODO: re-read
 		}
 
@@ -359,17 +369,15 @@ public class MtGoxTradeService implements Serializable {
 		TradingStatus status = new TradingStatus();
 		status.setBuying(strategy.isBuying());
 		status.setSelling(strategy.isSelling());
-		
+
 		CurrencyData lastBuyPrice = strategy.getLastBuyPrice();
 		if (lastBuyPrice.getValue() != 0.0)
 			status.setLastBuyPrice(lastBuyPrice);
-		
 
 		CurrencyData lastSellPrice = strategy.getLastSellPrice();
 		if (lastSellPrice.getValue() != 0.0)
 			status.setLastSellPrice(lastSellPrice);
-		
-		
+
 		status.setTime(new Date());
 		return status;
 	}

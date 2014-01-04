@@ -51,14 +51,14 @@
 		<!-- other plugin versions -->
 		<version.surefire.plugin>2.10</version.surefire.plugin>
 		<version.war.plugin>2.1.1</version.war.plugin>
-		
+
 		<!-- Seam 3 -->
 		<seam-bom.version>3.1.0.Final</seam-bom.version>
 		<!-- maven-compiler-plugin -->
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.source>1.7</maven.compiler.source>
 	</properties>
-	
+
 	<!-- Repositories -->
 	<repositories>
 		<repository>
@@ -77,7 +77,7 @@
 			<url>https://nexus.codehaus.org/content/repositories/releases</url>
 		</repository>
 	</repositories>
-	
+
 	<pluginRepositories>
 		<pluginRepository>
 			<id>jboss</id>
@@ -121,7 +121,7 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			
+
 			<!-- Seam 3 -->
 			<dependency>
 				<groupId>org.jboss.seam</groupId>
@@ -245,7 +245,6 @@
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxrs</artifactId>
-			<version>2.3.6.Final</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -273,32 +272,56 @@
 			<scope>provided</scope>
 		</dependency>
 		
+		<!-- JBoss Solder -->		
+		<dependency>
+			<groupId>org.jboss.solder</groupId>
+			<artifactId>solder-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.solder</groupId>
+			<artifactId>solder-impl</artifactId>
+		</dependency>
+
 		<!-- Seam 3 -->
+
 		<dependency>
 			<groupId>org.jboss.seam.persistence</groupId>
 			<artifactId>seam-persistence</artifactId>
+			<!-- Managed version -->
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jboss.seam.transaction</groupId>
 			<artifactId>seam-transaction</artifactId>
+			<!-- Managed version -->
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jboss.seam.faces</groupId>
 			<artifactId>seam-faces</artifactId>
+			<!-- Managed version -->
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jboss.seam.security</groupId>
 			<artifactId>seam-security</artifactId>
+			<!-- Managed version -->
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jboss.seam.international</groupId>
 			<artifactId>seam-international</artifactId>
+			<!-- Managed version -->
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.drools</groupId>
+			<artifactId>drools-api</artifactId>
+			<!-- Managed version -->
+		</dependency>
+
+
 		<!-- JTA -->
 		<dependency>
 			<groupId>javax.transaction</groupId>
@@ -310,7 +333,7 @@
 		<dependency>
 			<groupId>org.jboss.shrinkwrap.resolver</groupId>
 			<artifactId>shrinkwrap-resolver-depchain</artifactId>
-			<!-- <version>${version.shrinkwrap.resolvers}</version> -->
+			<!-- Managed version -->
 			<scope>test</scope>
 			<type>pom</type>
 		</dependency>
@@ -328,7 +351,17 @@
 		</dependency>
 
 
-		<!-- Other dependencies -->
+		<!-- Other dependencies -->		
+		<dependency>
+			<groupId>com.ocpsoft</groupId>
+			<artifactId>prettyfaces-jsf2</artifactId>
+			<version>3.3.3</version><!--$NO-MVN-MAN-VER$-->
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -354,7 +387,6 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.3</version>
 		</dependency>
-
 
 	</dependencies>
 

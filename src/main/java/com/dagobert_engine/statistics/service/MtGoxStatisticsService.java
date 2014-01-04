@@ -15,12 +15,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import com.dagobert_engine.core.model.AdvancedCurrencyStatistics;
+import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyStatistics;
 import com.dagobert_engine.core.model.CurrencyType;
-import com.dagobert_engine.core.service.ConfigService;
 import com.dagobert_engine.core.service.MtGoxApiAdapter;
-import com.dagobert_engine.core.util.KeyName;
 import com.dagobert_engine.core.util.MtGoxException;
 import com.dagobert_engine.statistics.model.BTCRate;
 import com.dagobert_engine.statistics.model.Period;
@@ -48,10 +47,11 @@ public class MtGoxStatisticsService implements Serializable {
 	private static final long serialVersionUID = -3776561847459503540L;
 
 	@Inject
-	private ConfigService configService;
+	private Configuration config;
 
 	@Inject
 	private MtGoxApiAdapter adapter;
+	
 	
 
 	private JSONParser parser = new JSONParser();
@@ -221,7 +221,7 @@ public class MtGoxStatisticsService implements Serializable {
 		synchronized (lock) {
 
 			final Date NOW = new Date();
-			final int periodLength = Integer.parseInt(configService.getProperty(KeyName.DEFAULT_PERIOD_LENGTH));
+			final int periodLength = config.getDefaultPeriodLength();
 
 			if (currentPeriod == null || NOW.after(currentPeriod.getToTime())) {
 				lastPeriod = currentPeriod;
@@ -233,7 +233,7 @@ public class MtGoxStatisticsService implements Serializable {
 
 			BTCRate rate = new BTCRate();
 			rate.setDateTime(NOW);
-			rate.setCurrency(CurrencyType.valueOf(configService.getProperty(KeyName.DEFAULT_CURRENCY)));
+			rate.setCurrency(config.getDefaultCurrency());
 			rate.setValue(getLastPrice(rate.getCurrency()).getValue());
 
 			// Add rate to current period
