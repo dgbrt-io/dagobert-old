@@ -75,30 +75,24 @@ Not implemented yet
 ----------------------------------------------------------
 
 Legend:
-[S] = Short-term priority
-[L] = Long-term priority
-[U] = Uncertain
-[C] = Certain
+ [S] = Short-term priority, [L] = Long-term priority, [U] = Uncertain, [C] = Certain
 
- [S][C] Graphical UI
-        => Either internal UI with technologies JSF or a Node.js client for this engine. There is no decision yet.
- [S][C] JPA support (Short term priority)
-        => Hibernate
-        => Already was implemented, but removed because it is not needed for the functionality at the moment.
+ [S][C] Graphical UI. Either internal UI with technologies JSF or a Node.js client for this engine. There is no decision yet.
+ 
+ [S][C] JPA support (Short term priority). Was already implemented but removed, because it is not needed for the functionality at the moment.
+ 
  [S][C] E-Mail notifications (Short term priority)
- [S][C] Chart generation (Short term priority)
-        => Candle charts (see for reference: http://bitcoin.clarkmoody.com/)
-        => Volume charts
- [L][C] Block chain analysis
-        => Analysing market participants by their market transactions
+ 
+ [S][C] Chart generation (Short term priority): Candle charts (see for reference: http://bitcoin.clarkmoody.com/), Volume charts
+ 
+ [L][C] Block chain analysis. Analysing market participants by their market transactions
+ 
  [L][C] Benchmarking against various markets
-        => BTC indices
-        => Traditional indices like DOW, DAX, ...
- [L][C] Universal interface for 3rd party API connectors to other trading platforms
-        [L][C] Kraken
-        [L][U] Bitcoin China
-        ...
+ 
+ [L][C] Universal interface for 3rd party API connectors to other trading platforms like Kraken or BTC China
+ 
  [L][U] Strategy editor 
+ 
  [L][U] OSGI support
 
 
