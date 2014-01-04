@@ -64,7 +64,7 @@ Features
 
 Implemented
 -----------
- * Reading personal portfolio data (balances, wallets, order history, ...)
+ * Reading MtGox personal portfolio data (balances, wallets, order history, ...)
  * Polling MtGox every five seconds for current prices
  * Calculate basic empiric data for each period: Avg, Min, Max, Standard Deviation, Quantiles
  * Strategy interface: You can implement your own trading strategy
@@ -73,18 +73,34 @@ Implemented
  
 Not implemented yet
 ----------------------------------------------------------
- * E-Mail notifications
- * Strategy editor 
- * Benchmarking (against various markets)
- * OSGI support
- * Chart generation
- * JSON support for REST
- * SOAP support (XML only)
- * Block chain analysis
- * Universal interface for 3rd party API connectors to other trading platforms
- * JPA support: I recently was using Hibernate before, but deleted it because the current architecture does not need JPA yet.
 
-And much more...
+Legend:
+[S] = Short-term priority
+[L] = Long-term priority
+[U] = Uncertain
+[C] = Certain
+
+ [S][C] Graphical UI
+        => Either internal UI with technologies JSF or a Node.js client for this engine. There is no decision yet.
+ [S][C] JPA support (Short term priority)
+        => Hibernate
+        => Already was implemented, but removed because it is not needed for the functionality at the moment.
+ [S][C] E-Mail notifications (Short term priority)
+ [S][C] Chart generation (Short term priority)
+        => Candle charts (see for reference: http://bitcoin.clarkmoody.com/)
+        => Volume charts
+ [L][C] Block chain analysis
+        => Analysing market participants by their market transactions
+ [L][C] Benchmarking against various markets
+        => BTC indices
+        => Traditional indices like DOW, DAX, ...
+ [L][C] Universal interface for 3rd party API connectors to other trading platforms
+        [L][C] Kraken
+        [L][U] Bitcoin China
+        ...
+ [L][U] Strategy editor 
+ [L][U] OSGI support
+
 
 Platform
 --------------
@@ -105,7 +121,7 @@ Requirements (minimum)
 ----------------------
 
  * Maven 3
- * Any Java EE 6 application server. I recommend JBoss AS 7.2.0 (or EAP 6.1.0 Final) http://www.jboss.org/jbossas/downloads/
+ * Any Java EE 6 application server. I recommend JBoss EAP 6.1.0 Final (or AS 7.2.0) http://www.jboss.org/jbossas/downloads/
  
  
 Requirements (recommended)
