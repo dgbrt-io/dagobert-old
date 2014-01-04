@@ -66,13 +66,14 @@ Implemented
 -----------
  * Reading personal portfolio data (balances, wallets, order history, ...)
  * Polling MtGox every five seconds for current prices
- * Categorizing the rates into two periods of variable length, which can be setup in the settings.properties file. (current period and last period)
  * Calculate basic empiric data for each period: Avg, Min, Max, Standard Deviation, Quantiles
  * Strategy interface: You can implement your own trading strategy
- * HTTP REST interface: Currently XML supported, JSON is following.
+ * JSON REST API
+ * Seam 3 support (CDI extension)
  
 Not implemented yet
 ----------------------------------------------------------
+ * E-Mail notifications
  * Strategy editor 
  * Benchmarking (against various markets)
  * OSGI support
@@ -122,11 +123,13 @@ Building
     cd dagobert
     mvn clean package
     
-Configuring
+Configuration
 ---------------------
 
 In order to run the app, you have to do the following steps:
- 1. Edit src/main/resources/com/dagobert_engine/example.properties and save it as settings.properties in the same directory
+ 1. Edit src/main/resources/META-INF/seam-beans.example.xml and save it as seam-beans.xml
+   => You can enable c:tradingEnabled to enable the trading mechanism. I recommend to turn it off for debugging purposes.
+   => Set your MtGox credentials c:mtGoxPublicKey and c:mtGoxPrivateKey. The api access must have the trading permission to trade.
  2. Edit src/main/webapp/WEB-INF/beans.xml. In here, you can add your personal trading implementation (It must implement com.dagobert_engine.trading.service.Strategy and has to be annotated with CDI's @Alternative). If you just want to test Dagobert without having any Strategy implementation yet, just comment out my CustomStrategy. It's not the best solution, I will make a better solution for the future.
 
     

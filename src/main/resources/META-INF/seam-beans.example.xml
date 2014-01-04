@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:j="urn:java:ee" xmlns:s="urn:java:seam:core" xmlns:c="urn:java:com.dagobert_engine.core.model">
+
+	<!-- Dagobert Config file -->
+
+	<!-- General configuration -->
+	<c:Configuration>
+		<j:modifies />
+
+		<!-- Set to true if you want to enable the trading component -->
+		<c:tradingEnabled>false</c:tradingEnabled>
+
+		<!-- Default Currency -->
+		<c:defaultCurrency>USD</c:defaultCurrency>
+
+		<!-- Default period length in ms -->
+		<c:defaultPeriodLength>300000</c:defaultPeriodLength>
+
+		<!-- Update interval in seconds -->
+		<c:updateTime>5</c:updateTime>
+
+
+	</c:Configuration>
+
+	<!-- Mailing -->
+	<c:EmailConfiguration>
+		<j:modifies />
+
+		<!-- Enables / disables mailing -->
+		<c:enabled>false</c:enabled>
+
+		<!-- Connection to Http server -->
+		<c:host>smtp.domain.tld</c:host>
+		<c:port>25</c:port>
+
+		<!-- Authentication -->
+		<c:authRequired>false</c:authRequired>
+		<c:username>username</c:username>
+		<c:password>password</c:password>
+
+		<!-- E-Mail receipients -->
+		<c:receipients>
+			<j:value>email@example.net</j:value>
+		</c:receipients>
+	</c:EmailConfiguration>
+
+	<!-- MtGox configuration -->
+	<c:MtGoxConfiguration>
+		<j:modifies />
+		
+		<!-- Insert your MtGox Public Key here -->
+		<c:mtGoxPublicKey></c:mtGoxPublicKey>
+
+		<!-- Insert your MtGox Private Key here -->
+		<c:mtGoxPrivateKey></c:mtGoxPrivateKey>
+
+		<!-- Min trade amount, restriction by MtGox -->
+		<!-- Only change if MtGox changes the restriction -->
+		<c:minTradeAmount>0.01</c:minTradeAmount>
+
+		<!-- Don't change this unless you really know what you are doing -->
+		<c:divisionFactors>
+
+			<j:entry>
+				<j:key>BTC</j:key>
+				<j:value>100000000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>USD</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>GBP</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>EUR</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>JPY</j:key>
+				<j:value>1000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>AUD</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>CAD</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>CHF</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>CNY</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>DKK</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>HKD</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>PLN</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>RUB</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>SEK</j:key>
+				<j:value>1000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>SGD</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+			<j:entry>
+				<j:key>THB</j:key>
+				<j:value>100000</j:value>
+			</j:entry>
+		</c:divisionFactors>
+	</c:MtGoxConfiguration>
+</beans>
