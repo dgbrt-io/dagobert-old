@@ -157,7 +157,7 @@ public class MtGoxPortfolioService implements Serializable {
 					if (info == null)
 						return null;
 
-					String rateText = info.split("at ")[1];
+					String rateText = info.split("at ")[1].replace(",", "");
 					Pattern pattern = Pattern.compile("[0-9]*\\.[0-9]{5}");
 					Matcher matcher = pattern.matcher(rateText);
 

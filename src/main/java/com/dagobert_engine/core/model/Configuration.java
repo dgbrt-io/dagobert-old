@@ -19,10 +19,10 @@ public class Configuration implements Serializable {
 	private static final long serialVersionUID = -6024254531148539599L;
 	
 	
-	private boolean tradingEnabled;
-	private int defaultPeriodLength;
-	private CurrencyType defaultCurrency;
-	private long updateTime;
+	private boolean tradingEnabled = false;
+	private int defaultPeriodLength = 300000;
+	private CurrencyType defaultCurrency = CurrencyType.USD;
+	private long updateTime = 1;
 	
 	
 	
