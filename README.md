@@ -76,22 +76,24 @@ Not implemented yet
 
 Legend:
  **[S]** = Short-term priority, **[L]** = Long-term priority, **[U]** = Uncertain, **[C]** = Certain
+ 
+ * **[S][C] Moving from Seam 3 to Apache Deltaspike, as the the Seam 3 project has been stopped.**
 
- * **[S][C] Graphical UI**. Either internal UI with technologies JSF or a Node.js client for this engine. There is no decision yet.
+ * **[S][C] Dynamic graphical UI**
+ 
+ * **[S][C] Chart generation** with D3.js
  
  * **[S][C] JPA support**. Was already implemented but removed, because it is not needed for the functionality at the moment.
  
  * **[S][C] E-Mail notifications** 
- 
- * **[S][C] Chart generation** Candle charts (see for reference: http://bitcoin.clarkmoody.com/), Volume charts
- 
+
  * **[L][C] Block chain analysis** Analysing market participants by their market transactions
 
  * **[L][C] Benchmarking against various markets**
  
  * **[L][C] Universal interface** for 3rd party API connectors to other trading platforms like Kraken or BTC China
  
- * **[L][U] Strategy editor **
+ * **[L][U] Strategy editor**
  
  * **[L][U] OSGI support**
 
