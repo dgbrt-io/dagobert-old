@@ -11,6 +11,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import com.dagobert_engine.core.model.Configuration;
+import com.dagobert_engine.core.model.MtGoxConfiguration;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
 import com.dagobert_engine.statistics.service.MtGoxStatisticsService;
 import com.dagobert_engine.trading.service.MtGoxTradeService;
@@ -29,7 +30,7 @@ import com.dagobert_engine.trading.service.MtGoxTradeService;
 @Singleton
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 @Startup
-public class UpdateService extends Thread {
+public class BootstrapService extends Thread {
 	
 	@Inject
 	private MtGoxStatisticsService ratesService;
@@ -43,13 +44,21 @@ public class UpdateService extends Thread {
 	@Inject
 	private Configuration config;
 	
+	@Inject
+	private MtGoxConfiguration mtgoxConfig;
+	
 	private boolean running = true;
 
-	public UpdateService() {
+	public BootstrapService() {
 	}
 	
 	@PostConstruct
 	public void postConstruct() {
+		
+		// Reload config files
+		config.reload();
+		mtgoxConfig.reload();
+		
 		
 		
 		logger.info("###################################################");

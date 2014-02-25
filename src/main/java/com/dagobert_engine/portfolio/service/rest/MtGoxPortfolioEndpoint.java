@@ -17,11 +17,11 @@ import javax.ws.rs.core.MediaType;
  * License http://www.apache.org/licenses/LICENSE-2.0
  *
  */
-@Path("/portfolio/mtgox")
+@Path("/mtgox/portfolio")
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class MtGoxPortfolioRESTResource {
+public class MtGoxPortfolioEndpoint {
 
 }

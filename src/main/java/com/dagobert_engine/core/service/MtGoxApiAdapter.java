@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -29,7 +30,8 @@ import org.json.simple.parser.ParseException;
 import com.dagobert_engine.core.model.Configuration;
 import com.dagobert_engine.core.model.CurrencyData;
 import com.dagobert_engine.core.model.CurrencyType;
-import com.dagobert_engine.core.model.DagobertStatus;
+import com.dagobert_engine.core.model.ApiStatus;
+import com.dagobert_engine.core.model.MtGoxApiStatus;
 import com.dagobert_engine.core.model.MtGoxConfiguration;
 import com.dagobert_engine.core.util.ApiKeysNotSetException;
 import com.dagobert_engine.core.util.MtGoxConnectionError;
@@ -48,7 +50,7 @@ import com.dagobert_engine.trading.service.util.Constants;
  *
  */
 @ApplicationScoped
-public class MtGoxApiAdapter implements Serializable {
+public class MtGoxApiAdapter implements ApiAdapter, Serializable {
 	
 	// request arg keys
 	public static final String ARG_KEY_NONCE = "nonce";
@@ -68,7 +70,7 @@ public class MtGoxApiAdapter implements Serializable {
 	private final String API_ID_KEY = "MONEY/IDKEY";
 	
 	@Inject
-	private UpdateService updateService;
+	private BootstrapService updateService;
 	
 	/**
 	 * Logger
@@ -116,27 +118,35 @@ public class MtGoxApiAdapter implements Serializable {
 	 * Get lag of connection
 	 * @return
 	 */
-	public String getLag() {
-		String urlPath = API_LAG;
-		HashMap<String, String> query_args = new HashMap<>();
-		/*
-		 * Params
-		 */
-		String queryResult = query(urlPath, query_args);
-		/*
-		 * Sample result the lag in milliseconds
-		 */
-		JSONParser parser = new JSONParser();
-		String lag = "";
+	@Override
+	public long getLag() {
 		try {
-			JSONObject httpAnswerJson = (JSONObject) (parser.parse(queryResult));
-			JSONObject dataJson = (JSONObject) httpAnswerJson.get("data");
-			lag = (String) dataJson.get("lag_text");
-		} catch (ParseException ex) {
+			String urlPath = API_LAG;
+			HashMap<String, String> query_args = new HashMap<>();
+			/*
+			 * Params
+			 */
+			String queryResult = query(urlPath, query_args);
+			/*
+			 * Sample result the lag in milliseconds
+			 */
+			JSONParser parser = new JSONParser();
+			String lag = "";
+			try {
+				JSONObject httpAnswerJson = (JSONObject) (parser.parse(queryResult));
+				JSONObject dataJson = (JSONObject) httpAnswerJson.get("data");
+				lag = (String) dataJson.get("lag_text");
+			} catch (ParseException ex) {
+				Logger.getLogger(MtGoxTradeService.class.getName()).log(
+						Level.SEVERE, null, ex);
+			}
+			return Long.parseLong(lag);
+		}
+		catch (MtGoxConnectionError ex) {
 			Logger.getLogger(MtGoxTradeService.class.getName()).log(
 					Level.SEVERE, null, ex);
+			return -1L;
 		}
-		return lag;
 	}
 
 	
@@ -289,9 +299,6 @@ public class MtGoxApiAdapter implements Serializable {
 				answer = toString(br);
 				
 			}
-
-			
-			
 		}
 		catch (UnknownHostException exc) {
 			throw new MtGoxConnectionError("Could not connect to MtGox. Please check your internet connection. (" + exc.getClass().getName() + ")");
@@ -313,22 +320,26 @@ public class MtGoxApiAdapter implements Serializable {
 	private String toString(BufferedReader br) throws IOException {
 
 		
-		String answer = "";
+		StringBuilder answer = new StringBuilder();
 		String line = "";
 		while ((line = br.readLine()) != null) {
-			answer += line;
+			answer.append(line);
 		}
 		
-		return answer;
+		return answer.toString();
 	}
 
-	public DagobertStatus getStatus() {
-		DagobertStatus status = new DagobertStatus();
+	public ApiStatus getStatus() {
+		MtGoxApiStatus status = new MtGoxApiStatus();
 		status.setDefaultCurrency(config.getDefaultCurrency());
 		status.setDefaultPeriodLength(config.getDefaultPeriodLength());
 		status.setLag(getLag());
 		status.setRunning(updateService.isRunning());
 		status.setTime(new Date());
+		status.setMinTradeAmount(mtGoxConfig.getMinTradeAmount());
+		status.setKeysSet(StringUtils.isNotEmpty(mtGoxConfig.getMtGoxPublicKey()) && StringUtils.isNotEmpty(mtGoxConfig.getMtGoxPrivateKey()));
+		status.setMinTradeAmount(mtGoxConfig.getMinTradeAmount());
+		status.setOnline(status.getLag() != -1L);
 		return status;
 	}
 }

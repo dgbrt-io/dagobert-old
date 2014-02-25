@@ -1,0 +1,4 @@
+tradingEnabled=false
+defaultCurrency=USD
+defaultPeriodLength=180000
+updateTime=5

@@ -1,4 +1,5 @@
-package com.dagobert_engine.core.rest;
+package com.dagobert_engine.trading.service.rest;
+
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -8,11 +9,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
-import com.dagobert_engine.core.model.DagobertStatus;
-import com.dagobert_engine.core.service.MtGoxApiAdapter;
+import com.dagobert_engine.trading.model.TradingStatus;
+import com.dagobert_engine.trading.service.MtGoxTradeService;
 
 /**
+ * Statistics rest service
  * 
  * @author Michael Kunzmann (mail@michaelkunzmann.com)
  * @version 0.1-ALPHA
@@ -22,17 +25,16 @@ import com.dagobert_engine.core.service.MtGoxApiAdapter;
  */
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-@Path(value = "/status")
-@Produces({"application/xml", "application/json"})
-@Consumes({"application/xml", "application/json"})
-public class MtGoxApiAdapterRESTResource {
+@Path(value = "/trading")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class MtGoxTradingEndpoint {
 	
 	@Inject
-	private MtGoxApiAdapter adapter;
+	private MtGoxTradeService trading;
 	
 	@GET
-	public DagobertStatus getStatus() {
-		return adapter.getStatus();
+	public TradingStatus getStatus() {
+		return trading.getStatus();
 	}
-
 }

@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement(name = "status")
-public class DagobertStatus {
+public class ApiStatus {
 	
 	@XmlAttribute
 	private Date time;
@@ -30,9 +30,15 @@ public class DagobertStatus {
 	private CurrencyType defaultCurrency;
 	
 	@XmlElement
-	private String lag;
+	private long lag;
+	
+	@XmlElement
+	private Double minTradeAmount;
+	
+	@XmlElement
+	private boolean online;
 
-	public DagobertStatus() {
+	public ApiStatus() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -68,12 +74,28 @@ public class DagobertStatus {
 		this.defaultCurrency = defaultCurrency;
 	}
 
-	public String getLag() {
+	public long getLag() {
 		return lag;
 	}
 
-	public void setLag(String lag) {
+	public void setLag(long lag) {
 		this.lag = lag;
+	}
+
+	public Double getMinTradeAmount() {
+		return minTradeAmount;
+	}
+
+	public void setMinTradeAmount(Double minTradeAmount) {
+		this.minTradeAmount = minTradeAmount;
+	}
+
+	public boolean isOnline() {
+		return online;
+	}
+
+	public void setOnline(boolean online) {
+		this.online = online;
 	}
 
 	

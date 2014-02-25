@@ -56,6 +56,5 @@ public class CoreTest extends AbstractTest {
 	@Test
 	public void getLagTest() {
 		assertThat(adapter.getLag(), not(nullValue()));
-		assertThat(adapter.getLag().equals(""), not(true));
 	}
 }

@@ -64,12 +64,14 @@ Features
 
 Implemented
 -----------
+ * NEW: Port to Java EE 7 due to near future WebSocket support
  * Reading MtGox personal portfolio data (balances, wallets, order history, ...)
  * Polling MtGox every five seconds for current prices
  * Calculate basic empiric data for each period: Avg, Min, Max, Standard Deviation, Quantiles
  * Strategy interface: You can implement your own trading strategy
  * JSON REST API
- * Seam 3 support (CDI extension)
+ * ~~Seam 3 support (CDI extension)~~ Seam 3 support was dropped, we will use DeltaSpike in the future.
+ 
  
 Not implemented yet
 ----------------------------------------------------------
@@ -77,17 +79,19 @@ Not implemented yet
 Legend:
  **[S]** = Short-term priority, **[L]** = Long-term priority, **[U]** = Uncertain, **[C]** = Certain
  
- * **[S][C] Moving from Seam 3 to Apache Deltaspike, as the the Seam 3 project has been stopped.**
+ * **[S][C] WebSocket support**
+ 
+ * **[S][C] ~~Moving from Seam 3 to Apache Deltaspike, as the the Seam 3 project has been stopped.~~ Stopped using Seam 3 due to some bugs with JBoss Solder and CDI 1.1. Currently DeltaSpike is not needed, but commented out in pom.xml**
 
- * **[S][C] Dynamic graphical UI**
+ * **[S][C] Dynamic graphical UI using Angular.js**
  
  * **[S][C] Chart generation** with D3.js
  
  * **[S][C] JPA support**. Was already implemented but removed, because it is not needed for the functionality at the moment.
  
- * **[S][C] E-Mail notifications** 
+ * **[L][C] E-Mail notifications** 
 
- * **[L][C] Block chain analysis** Analysing market participants by their market transactions
+ * **[L][C] Block chain analysis** Analyzing market participants by their market transactions
 
  * **[L][C] Benchmarking against various markets**
  
@@ -100,8 +104,8 @@ Legend:
 
 Platform
 --------------
-Dagobert is based on Java Enterprise Edition 6. (http://www.oracle.com/technetwork/java/javaee/tech/index.html)
-I'm using JBoss Enterprise Application Platform 6.1.0 to run this app.
+Dagobert is based on Java Enterprise Edition 7. (http://www.oracle.com/technetwork/java/javaee/tech/index.html)
+I'm using WildFly 8.0 (former JBoss AS) to run this app.
 
 Special thanks
 --------------
@@ -117,7 +121,7 @@ Requirements (minimum)
 ----------------------
 
  * Maven 3
- * Any Java EE 6 application server. I recommend JBoss EAP 6.1.0 Final (or AS 7.2.0) http://www.jboss.org/jbossas/downloads/
+ * Any Java EE 7 application server. I recommend WildFly 8.0 (former JBoss AS) http://www.jboss.org/jbossas/downloads/
  
  
 Requirements (recommended)
@@ -125,7 +129,7 @@ Requirements (recommended)
  
  * Eclipse Kepler for Java EE
  * Eclipse Plugin "JBoss Tools"
- * JBoss EAP 6.1.0 Final http://www.jboss.org/jbossas/downloads/
+ * WildFly 8.0 (former JBoss AS) http://www.jboss.org/jbossas/downloads/
  
  
 Building
@@ -139,19 +143,19 @@ Configuration
 ---------------------
 
 In order to run the app, you have to do the following steps:
- 1. Edit src/main/resources/META-INF/seam-beans.example.xml and save it as seam-beans.xml
-   => You can enable c:tradingEnabled to enable the trading mechanism. I recommend to turn it off for debugging purposes.
-   => Set your MtGox credentials c:mtGoxPublicKey and c:mtGoxPrivateKey. The api access must have the trading permission to trade.
+ 1. Edit src/main/resources/META-INF/*.properties.example files to your needs and and save it as *.properties (replace * with the file name)
+   => You can enable tradingEnabled to enable the trading mechanism. I recommend to turn it off by default and enable it on runtime.
+   => Set your MtGox credentials mtGoxPublicKey and mtGoxPrivateKey. The api access must have the trading permission to trade.
  2. Edit src/main/webapp/WEB-INF/beans.xml. In here, you can add your personal trading implementation (It must implement com.dagobert_engine.trading.service.Strategy and has to be annotated with CDI's @Alternative). If you just want to test Dagobert without having any Strategy implementation yet, just comment out my CustomStrategy. It's not the best solution, I will make a better solution for the future.
 
     
-Deploying to JBoss AS
+Deploying to WildFly 8.0
 ---------------------
 
-    mvn clean package jboss-as:deploy
+    mvn clean package wildfly:deploy
     
 Running JUnit Tests
 -------------------
 
-    mvn clean test -Parq-jbossas-managed
+    mvn clean test -Parq-wildfly-managed
 
