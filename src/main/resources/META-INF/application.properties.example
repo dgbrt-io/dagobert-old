@@ -1,4 +1,8 @@
-tradingEnabled=false
-defaultCurrency=USD
-defaultPeriodLength=180000
+krakenUsername=myusername
+krakenApiKey=myapikey
+krakenSecret=mysecret
+periods=4
+tradedCurrencyPairs=BTC_USD,LTC_USD
+defaultPeriodLength=5
 updateTime=5
+mock=true

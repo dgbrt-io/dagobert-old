@@ -23,9 +23,4 @@
         http://java.sun.com/xml/ns/javaee 
         http://java.sun.com/xml/ns/javaee/beans_1_0.xsd">
         
-
-	<!-- Add your alternative strategies here -->
-	<alternatives>
-		<class>com.michaelkunzmann.trading.service.CustomStrategy</class>
-	</alternatives>
 </beans>

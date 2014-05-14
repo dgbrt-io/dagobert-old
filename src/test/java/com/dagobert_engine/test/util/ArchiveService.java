@@ -26,6 +26,8 @@ public enum ArchiveService {
 	private static final String JTA = "javax.transaction:jta:1.1";
 	private static final String COMMONS_CODEC = "commons-codec:commons-codec:1.8";
 	
+	private static final String XCHANGE_CORE = "com.xeiam.xchange:xchange-core:2.0.0";
+	private static final String XCHANGE_KRAKEN = "com.xeiam.xchange:xchange-kraken:2.0.0";
 	
 	private static final String TEST_WAR = "test.war";
 	private static final String BASE_PACKAGE_PATH = "/com/dagobert_engine/";
@@ -69,7 +71,7 @@ public enum ArchiveService {
 	
 	private void addMavenDeps() {
 		archive.addAsLibraries(Maven.resolver()  
-			    .loadPomFromFile("pom.xml").resolve(COMMONS_MATH, COMMONS_LANG, GSON, SIMPLE, JTA, COMMONS_CODEC)  
+			    .loadPomFromFile("pom.xml").resolve(COMMONS_MATH, COMMONS_LANG, GSON, SIMPLE, JTA, COMMONS_CODEC, XCHANGE_CORE, XCHANGE_KRAKEN)  
 			    .withTransitivity().asFile());
 		
 	}

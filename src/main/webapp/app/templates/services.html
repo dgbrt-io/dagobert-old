@@ -1,0 +1,7 @@
+<div ng-controller="ServiceCtrl">
+	<h2>Services</h2>
+	<ul>
+		<li ng-repeat="service in runningServices"><a
+			ng-href="#/services/{{ service.name }}">{{ service.name }}</a></li>
+	</ul>
+</div>
