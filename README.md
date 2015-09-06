@@ -1,3 +1,6 @@
+Old implementation. New implementation here: https://github.com/thundrcloud/dagobert
+
+
 							###################################################
 							###################################################
 							###########                            ############
